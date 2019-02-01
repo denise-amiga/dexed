@@ -37,18 +37,18 @@ All these actions are assignable to a shortcut via the [shortcut editor](options
 
 #### Automatic features
 
-Options exist to automatically close the curly brackets (`{ }`), the square brackets (`[ ]`), the parenthesis (`( )`) the double quotes (`" "`), the back-ticks and the single quotes.
+Options exist to automatically close the curly brackets (`{ }`), the square brackets (`[ ]`), the double quotes (`" "`), the back-ticks (`` ` ` ``) and the single quotes (`' '`).
 
 The way the right curly bracket is inserted can be tweaked. For the other symbols the feature is always either individually on or off.
 
 Options for the curly brackets:
 
 - _autoCloseNever_: Deactivates the feature. 
-- _autoCloseAtEof_: Closes a brace after a `{` located at the end of file.
-- _autoCloseAlways_: Closes a brace after a `{`.
+- _autoCloseAtEof_: **deprecated**, this mode has not effect anymore and is replaced automatically by a _autoCloseNever_.
+- _autoCloseAlways_: **deprecated**, this mode has not effect anymore and is replaced automatically by a _autoCloseLexically_.
 - _autoCloseLexically_: Closes a brace after a `{` if the count of braces pairs is odd.
-- _autoCloseOnNewLineEof_: Closes a brace after a `{` located at the end of file but only after <kbd>ENTER</kbd>.
-- _autoCloseOnNewLineAlways_: Closes a brace after a `{` but only after <kbd>ENTER</kbd>.
+- _autoCloseOnNewLineEof_: **deprecated**, this mode has not effect anymore and is replaced automatically by _autoCloseOnNewLineLexically_.
+- _autoCloseOnNewLineAlways_: **deprecated**, this mode has not effect anymore and is replaced automatically by _autoCloseOnNewLineLexically_.
 - _autoCloseOnNewLineLexically_: Closes a brace on <kbd>ENTER</kbd> and if the count of braces pairs is odd.
 
 The last option is the default. Use the <kbd>CTRL</kbd> key to skip the auto closing done with <kbd>ENTER</kbd>.
