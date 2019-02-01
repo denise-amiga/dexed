@@ -26,12 +26,12 @@ type
   );
 
   TBraceAutoCloseStyle = (
-    autoCloseNever,
-    autoCloseAtEof,
-    autoCloseAlways,
+    autoCloseNever,               // TODO-cmaintenace: remove the deprecated values two rlzs after 3.7.5
+    autoCloseAtEof,               // deprecated
+    autoCloseAlways,              // deprecated
     autoCloseLexically,
-    autoCloseOnNewLineEof,
-    autoCloseOnNewLineAlways,
+    autoCloseOnNewLineEof,        // deprecated
+    autoCloseOnNewLineAlways,     // deprecated
     autoCloseOnNewLineLexically
   );
 
@@ -1680,44 +1680,61 @@ end;
 
 function TDexedMemo.autoIndentationLevel(line: Integer): Integer;
 var
-  i: integer;
-  beg: string = '';
-  balanceInBeg: Integer = 0;
-  numTabs: integer = 0;
-  numSpac: integer = 0;
-  numSkip: integer = 0;
-  c: Char;
+  leftTokIndex: integer = -1;
+  t: PLexToken = nil;
+  i: integer = 0;
+  j: integer = 0;
+  s: integer = $7FFFFFFF;
+  b: boolean = false;
+  x,y: integer;
 begin
   if not fIsDSource and not alwaysAdvancedFeatures or
     not (eoAutoIndent in Options) then
     exit(0);
 
-  for i := line - 2 downto 0 do
+  // locate the token at the left of the caret
+  for i := fLexToks.Count-1 downto 0 do
   begin
-    beg := Lines[i];
-    balanceInBeg := 0;
-    for c in beg do
-      if c = '}' then
-        balanceInBeg -= 1
-      else if c = '{' then
-        balanceInBeg += 1;
-    numSkip -= balanceInBeg;
-    if numSkip < 0 then
-      break
-    else
-  end;
-
-  for i:= 1 to beg.length do
-  begin
-    case beg[i] of
-      #9: numTabs += 1;
-      ' ': numSpac += 1;
-      else break;
+    t := fLexToks[i];
+    x := CaretX ;
+    y := CaretY ;
+    if fLexToks[i]^.position.y > y then
+      continue;
+    if ((fLexToks[i]^.position.y = y) and (fLexToks[i]^.position.x <= x))
+      or (fLexToks[i]^.position.y < y) then
+    begin
+      leftTokIndex := i;
+      break;
     end;
   end;
-  result := numTabs + numSpac div TabWidth;
-  if balanceInBeg > 0 then
-    result += 1;
+
+  if leftTokIndex = -1 then
+    exit(0);
+
+  // compute indentation
+  for i := leftTokIndex downto 0 do
+  begin
+    t := fLexToks[i];
+    if t^.kind <> ltkSymbol then
+      continue;
+    case t^.Data[1] of
+      '{':
+        begin
+          b := true;
+          j += 1;
+        end;
+      '}': j -= 1;
+    end;
+    if t^.position.x > s then
+      break;
+    if b then
+      s := min(s, t^.position.x)
+    else
+      s := 0;
+  end;
+  // note: the leftmost openening brace might be on a column <> 0
+  // but the fix breaks the K&R brace style...
+  result := j ;//+ (s div TabWidth);
 end;
 
 procedure TDexedMemo.curlyBraceCloseAndIndent(close: boolean = true);
@@ -1729,8 +1746,9 @@ begin
 
   BeginUndoBlock;
 
-  CommandProcessor(ecLineBreak, '', nil);
   numTabs := autoIndentationLevel(CaretY);
+  CommandProcessor(ecLineBreak, '', nil);
+
   if close then
   begin
     if not isBlank(lineText) then // put rest of line on a new one after the `}`
@@ -3518,40 +3536,18 @@ begin
       if [ssCtrl] <> Shift then
       begin
         lxd := false;
-        case fAutoCloseCurlyBrace of
-         autoCloseAlways, autoCloseOnNewLineAlways:
-          if (CaretX > 1) and (line[LogicalCaretXY.X - 1] = '{') then
+        if ((LogicalCaretXY.X - 1 >= line.length) or
+          isBlank(line[LogicalCaretXY.X .. line.length])) then
+        begin
+          fLexToks.Clear;
+          lex(lines.Text, fLexToks);
+          lxd := true;
+          ccb := lexCanCloseBrace;
+          if ccb <> braceCloseInvalid then
           begin
             Key := 0;
-            curlyBraceCloseAndIndent;
-          end;
-         autoCloseAtEof, autoCloseOnNewLineEof:
-          if (CaretX > 1) and (line[LogicalCaretXY.X - 1] = '{') then
-          if (CaretY = Lines.Count) and (CaretX = line.length+1) then
-          begin
-            Key := 0;
-            curlyBraceCloseAndIndent;
-          end;
-         autoCloseNever:
-          if (CaretX > 1) and (line[LogicalCaretXY.X - 1] = '{') then
-          begin
-            Key := 0;
-            curlyBraceCloseAndIndent(false);
-          end;
-         autoCloseLexically, autoCloseOnNewLineLexically:
-          if ((LogicalCaretXY.X - 1 >= line.length) or
-            isBlank(line[LogicalCaretXY.X .. line.length])) then
-          begin
-            fLexToks.Clear;
-            lex(lines.Text, fLexToks);
-            lxd := true;
-            ccb := lexCanCloseBrace;
-            if ccb <> braceCloseInvalid then
-            begin
-              Key := 0;
-              curlyBraceCloseAndIndent(ccb = braceClosePositive);
-              lxd := false;
-            end;
+            curlyBraceCloseAndIndent((ccb = braceClosePositive) and not (fAutoCloseCurlyBrace = autoCloseNever));
+            lxd := false;
           end;
         end;
         if (fSmartDdocNewline) then
@@ -3658,24 +3654,15 @@ begin
       autoClosePair(autoCloseSquareBracket);
     '(': showCallTips(false);
     ')': if fCallTipWin.Visible then decCallTipsLvl;
-    '{': if GetKeyShiftState <> [ssShift] then
+    '{': if (fAutoCloseCurlyBrace = autoCloseLexically) and
+            (GetKeyShiftState <> [ssShift]) then
     begin
-        case fAutoCloseCurlyBrace of
-          autoCloseAlways:
-            curlyBraceCloseAndIndent;
-          autoCloseAtEof:
-            if (CaretY = Lines.Count) and (CaretX = LineText.length+1) then
-              curlyBraceCloseAndIndent;
-          autoCloseLexically:
-          begin
-            fLexToks.Clear;
-            lex(lines.Text, fLexToks);
-            case lexCanCloseBrace of
-              braceClosePositive: curlyBraceCloseAndIndent;
-              braceCloseLessEven: curlyBraceCloseAndIndent(false);
-            end;
-          end;
-        end;
+      fLexToks.Clear;
+      lex(lines.Text, fLexToks);
+      case lexCanCloseBrace of
+        braceClosePositive: curlyBraceCloseAndIndent;
+        braceCloseLessEven: curlyBraceCloseAndIndent(false);
+      end;
     end;
   end;
   if fCompletion.IsActive then

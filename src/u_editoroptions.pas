@@ -89,10 +89,11 @@ type
     procedure setAutoDotDelay(value: Integer);
     procedure setCompletionMenuLines(value: byte);
     procedure setLineNumEvery(value: integer);
+    procedure setAutoBraceClosingStyle(value: TBraceAutoCloseStyle);
   published
     property alwaysAdvancedFeatures: boolean read fAlwaysAdvancedFeatures write fAlwaysAdvancedFeatures;
     property autoCallCompletion: boolean read fAutoCallCompletion write fAutoCallCompletion;
-    property autoCloseCurlyBrace: TBraceAutoCloseStyle read fAutoCloseCurlyBrace write fAutoCloseCurlyBrace default TBraceAutoCloseStyle.autoCloseNever;
+    property autoCloseCurlyBrace: TBraceAutoCloseStyle read fAutoCloseCurlyBrace write setAutoBraceClosingStyle default TBraceAutoCloseStyle.autoCloseNever;
     property autoClosedPairs: TAutoClosePairs read fAutoClosedPairs write fAutoClosedPairs default[];
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property background: TColor read fBackground write fBackground default clWhite;
@@ -393,6 +394,19 @@ begin
   if value < 1 then value := 1
   else if value > 10 then value := 10;
   fLineNumEvery := value;
+end;
+
+procedure TEditorOptionsBase.setAutoBraceClosingStyle(value: TBraceAutoCloseStyle);
+begin
+
+  //TODO-cmaintenance: remove this two rlzs after 3.7.5
+  case value of
+    autoCloseAtEof, autoCloseOnNewLineEof:  value := TBraceAutoCloseStyle.autoCloseNever;
+    autoCloseOnNewLineAlways: value := TBraceAutoCloseStyle.autoCloseOnNewLineLexically;
+    autoCloseAlways: value := TBraceAutoCloseStyle.autoCloseLexically;
+  end;
+
+  fAutoCloseCurlyBrace:= value;
 end;
 
 procedure TEditorOptionsBase.setShortcuts(value: TCollection);
