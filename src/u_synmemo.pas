@@ -1722,7 +1722,7 @@ begin
   // add the first token of the line indent
   if t^.position.x > 0 then
   begin
-    s := LineText[1 .. t^.position.x];
+    s := lines[t^.position.y-1][1 .. t^.position.x];
     for c in s do
     begin
       tabCount += Byte(c = #9);
