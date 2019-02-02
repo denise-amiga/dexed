@@ -1563,7 +1563,10 @@ begin
       showCallTips(true);
     end;
     ecCurlyBraceClose:
+    begin
+      lexWholeText([TLexOption.lxoNoWhites, TLexOption.lxoNoComments]);
       curlyBraceCloseAndIndent;
+    end;
     ecCommentSelection:
       commentSelection;
     ecSwapVersionAllNone:
@@ -1689,37 +1692,44 @@ function TDexedMemo.autoIndentationLevel(line: Integer): Integer;
 var
   leftTokIndex: integer = -1;
   t: PLexToken = nil;
+  f: PLexToken = nil;
   i: integer = 0;
-  j: integer = 0;
-  s: integer = $7FFFFFFF;
+  s: string;
+  c: char;
+  tabCount: integer = 0;
+  spcCount: integer = 0;
 begin
   if not fIsDSource and not alwaysAdvancedFeatures or
     not (eoAutoIndent in Options) then
-    exit(0);
+      exit(0);
 
   leftTokIndex := getIndexOfTokenLeftTo(fLexToks, CaretXY);
-  if leftTokIndex = -1 then
+  if (leftTokIndex = -1) or (leftTokIndex >= fLexToks.Count) then
     exit(0);
 
-  for i := leftTokIndex downto 0 do
+  result := 0;
+  // indent if we're right after an opening brace
+  t := fLexToks[leftTokIndex];
+  result += Byte((t^.kind = ltkSymbol) and (t^.Data[1] = '{'));
+  // goto line beg and look at its indent
+  for i:= leftTokIndex - 1 downto 0 do
   begin
-    t := fLexToks[i];
-    if t^.kind <> ltkSymbol then
-      continue;
-    case t^.Data[1] of
-      '{':
-        begin
-          j += 1;
-          if t^.position.x > s then
-            break;
-          s := min(s, t^.position.x);
-        end;
-      '}': j -= 1;
-    end;
+    f := fLexToks[i];
+    if f^.position.y <> t^.position.y then
+      break;
+    t := f;
   end;
-  // note: the leftmost openening brace might be on a column <> 0
-  // but the fix breaks the K&R brace style...
-  result := j ;//+ (s div TabWidth);
+  // add the first token of the line indent
+  if t^.position.x > 0 then
+  begin
+    s := LineText[1 .. t^.position.x];
+    for c in s do
+    begin
+      tabCount += Byte(c = #9);
+      spcCount += Byte(c = ' ');
+    end;
+    result += tabCount + spcCount div TabWidth;
+  end;
 end;
 
 procedure TDexedMemo.curlyBraceCloseAndIndent(close: boolean = true);
@@ -3522,7 +3532,7 @@ begin
         if ((LogicalCaretXY.X - 1 >= line.length) or
           isBlank(line[LogicalCaretXY.X .. line.length])) then
         begin
-          lexWholeText();
+          lexWholeText([TLexOption.lxoNoWhites, TLexOption.lxoNoComments]);
           lxd := true;
           ccb := lexCanCloseBrace;
           if ccb <> braceCloseInvalid then
@@ -3629,7 +3639,7 @@ begin
     '{': if (fAutoCloseCurlyBrace = autoCloseLexically) and
             (GetKeyShiftState <> [ssShift]) then
     begin
-      lexWholeText();
+      lexWholeText([TLexOption.lxoNoWhites, TLexOption.lxoNoComments]);
       case lexCanCloseBrace of
         braceClosePositive: curlyBraceCloseAndIndent;
         braceCloseLessEven: curlyBraceCloseAndIndent(false);
