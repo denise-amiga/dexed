@@ -3118,6 +3118,16 @@ begin
     dmdproc.Parameters.AddStrings(fRunnablesOptions.staticSwitches);
     if lst.isNotNil and (lst.Count <> 0) then
       dmdproc.Parameters.AddStrings(lst);
+    {$ifdef WINDOWS}
+    {$ifdef CPUX86_64}
+    if lst.isNotNil and (lst.IndexOf('-m32') <> -1) then
+    begin
+      i := dmdproc.Parameters.IndexOf('-m64');
+      if i <> -1 then
+        dmdproc.Parameters.Delete(i);
+    end;
+    {$endif}
+    {$endif}
     if fRunnablesOptions.detectMain then
     begin
       hasMain := fDoc.implementMain;
