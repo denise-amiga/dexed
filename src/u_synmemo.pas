@@ -653,7 +653,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TMixedIndentationDialog}
+{$REGION TMixedIndentationDialog -----------------------------------------------}
 constructor TMixedIndentationDialog.construct(numSpaces, numTabs: integer);
 var
   pn: TPanel;
@@ -739,7 +739,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TSynMemoCache -------------------------------------------------------}
+{$REGION TSynMemoCache ---------------------------------------------------------}
 constructor TSynMemoCache.create(aComponent: TComponent);
 begin
   inherited create(nil);
@@ -858,7 +858,7 @@ end;
 {$IFDEF DEBUG}{$R+}{$ENDIF}
 {$ENDREGION}
 
-{$REGION TSynMemoPositions ---------------------------------------------------}
+{$REGION TSynMemoPositions -----------------------------------------------------}
 constructor TSynMemoPositions.create(memo: TCustomSynEdit);
 begin
   fList := TFPList.Create;
@@ -914,7 +914,7 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
-{$REGION TScrollMemo ---------------------------------------------------------}
+{$REGION TScrollMemo -----------------------------------------------------------}
 constructor TScrollMemo.construct(editor: TDexedMemo);
 begin
   inherited create(editor);
@@ -3736,7 +3736,7 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
-{$REGION debugging/breakpoints -----------------------------------------------------------}
+{$REGION debugging/breakpoints -------------------------------------------------}
 function TDexedMemo.breakPointsCount: integer;
 var
   i: integer;
