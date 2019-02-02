@@ -300,6 +300,7 @@ type
     procedure removeGutterIcon(line: integer; value: TGutterIcon);
     procedure patchClipboardIndentation;
     procedure gotoWordEdge(right: boolean);
+    procedure lexWholeText(opts: TLexOptions = []);
     //
     procedure gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
     procedure removeDebugTimeMarks;
@@ -1489,6 +1490,12 @@ begin
   end;
 end;
 
+procedure TDexedMemo.lexWholeText(opts: TLexOptions = []);
+begin
+  fLexToks.Clear;
+  lex(lines.Text, fLexToks, nil, opts);
+end;
+
 procedure TDexedMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
   var AChar: TUTF8Char; Data: pointer);
 begin
@@ -1938,8 +1945,7 @@ var
 begin
   if not fIsDSource and not alwaysAdvancedFeatures then
     exit;
-  fLexToks.Clear;
-  lex(lines.Text, fLexToks, nil, [lxoNoComments]);
+  lexWholeText([lxoNoComments]);
   cp := CaretXY;
   if SelAvail then
   begin
@@ -2270,8 +2276,7 @@ var
 begin
   if not fIsDSource and not alwaysAdvancedFeatures then
     exit;
-  fLexToks.Clear;
-  lex(Lines.Text, fLexToks, nil, [lxoNoComments, lxoNoWhites]);
+  lexWholeText([lxoNoComments, lxoNoWhites]);
   for i:=0 to fLexToks.Count-2 do
   begin
     tk0 := fLexToks[i];
@@ -3539,8 +3544,7 @@ begin
         if ((LogicalCaretXY.X - 1 >= line.length) or
           isBlank(line[LogicalCaretXY.X .. line.length])) then
         begin
-          fLexToks.Clear;
-          lex(lines.Text, fLexToks);
+          lexWholeText();
           lxd := true;
           ccb := lexCanCloseBrace;
           if ccb <> braceCloseInvalid then
@@ -3553,10 +3557,7 @@ begin
         if (fSmartDdocNewline) then
         begin
           if not lxd then
-          begin
-            fLexToks.Clear;
-            lex(lines.Text, fLexToks);
-          end;
+            lexWholeText();
           ddc := canInsertLeadingDdocSymbol;
           if ddc in ['*', '+'] then
           begin
@@ -3612,13 +3613,6 @@ end;
 procedure TDexedMemo.UTF8KeyPress(var Key: TUTF8Char);
 var
   c: AnsiChar;
-
-procedure reLex();
-begin
-  fLexToks.Clear;
-  lex(Lines.Text, fLexToks);
-end;
-
 begin
   c := Key[1];
 
@@ -3626,13 +3620,13 @@ begin
   // tokens following the cursor are wrong after the "inherited" call.
   case c of
     #39: if autoCloseSingleQuote in fAutoClosedPairs then
-      reLex();
+      lexWholeText();
     '"': if autoCloseDoubleQuote in fAutoClosedPairs then
-      reLex();
+      lexWholeText();
     '`': if autoCloseBackTick in fAutoClosedPairs then
-      reLex();
+      lexWholeText();
     '[': if autoCloseSquareBracket in fAutoClosedPairs then
-      reLex();
+      lexWholeText();
   end;
 
   inherited;
@@ -3657,8 +3651,7 @@ begin
     '{': if (fAutoCloseCurlyBrace = autoCloseLexically) and
             (GetKeyShiftState <> [ssShift]) then
     begin
-      fLexToks.Clear;
-      lex(lines.Text, fLexToks);
+      lexWholeText();
       case lexCanCloseBrace of
         braceClosePositive: curlyBraceCloseAndIndent;
         braceCloseLessEven: curlyBraceCloseAndIndent(false);
