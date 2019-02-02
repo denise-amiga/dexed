@@ -721,6 +721,11 @@ procedure TRunnableOptions.setDefaultSwitches;
 begin
   fStaticSwitches.Clear;
   fStaticSwitches.AddStrings(['-vcolumns', '-w', '-wi']);
+  {$ifdef WINDOWS}
+  {$ifdef CPUX86_64}
+  fStaticSwitches.Add('-m64');
+  {$endif}
+  {$endif}
 end;
 
 procedure TRunnableOptions.sanitizeSwitches;
