@@ -1692,33 +1692,15 @@ var
   i: integer = 0;
   j: integer = 0;
   s: integer = $7FFFFFFF;
-  b: boolean = false;
-  x,y: integer;
 begin
   if not fIsDSource and not alwaysAdvancedFeatures or
     not (eoAutoIndent in Options) then
     exit(0);
 
-  // locate the token at the left of the caret
-  for i := fLexToks.Count-1 downto 0 do
-  begin
-    t := fLexToks[i];
-    x := CaretX ;
-    y := CaretY ;
-    if fLexToks[i]^.position.y > y then
-      continue;
-    if ((fLexToks[i]^.position.y = y) and (fLexToks[i]^.position.x <= x))
-      or (fLexToks[i]^.position.y < y) then
-    begin
-      leftTokIndex := i;
-      break;
-    end;
-  end;
-
+  leftTokIndex := getIndexOfTokenLeftTo(fLexToks, CaretXY);
   if leftTokIndex = -1 then
     exit(0);
 
-  // compute indentation
   for i := leftTokIndex downto 0 do
   begin
     t := fLexToks[i];
@@ -1727,17 +1709,13 @@ begin
     case t^.Data[1] of
       '{':
         begin
-          b := true;
           j += 1;
+          if t^.position.x > s then
+            break;
+          s := min(s, t^.position.x);
         end;
       '}': j -= 1;
     end;
-    if t^.position.x > s then
-      break;
-    if b then
-      s := min(s, t^.position.x)
-    else
-      s := 0;
   end;
   // note: the leftmost openening brace might be on a column <> 0
   // but the fix breaks the K&R brace style...

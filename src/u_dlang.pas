@@ -149,6 +149,11 @@ function getModuleName(list: TLexTokenList): string;
 procedure getImports(list: TLexTokenList; imports: TStrings);
 
 (**
+ * Get The index of the tokens at the left of the caret position
+ *)
+function getIndexOfTokenLeftTo(tokens: TLexTokenList; caretPos: TPoint): integer;
+
+(**
  * Compares two TPoints.
  *)
 operator = (lhs: TPoint; rhs: TPoint): boolean;
@@ -994,6 +999,30 @@ end;
 {$ENDREGION}
 
 {$REGION Utils}
+function getIndexOfTokenLeftTo(tokens: TLexTokenList; caretPos: TPoint): integer;
+var
+  i: integer;
+  x: integer;
+  y: integer;
+  t: PLexToken;
+begin
+  result := -1;
+  for i := tokens.Count-1 downto 0 do
+  begin
+    t := tokens[i];
+    x := caretPos.x;
+    y := caretPos.y;
+    if t^.position.y > y then
+      continue;
+    if ((t^.position.y = y) and (t^.position.x <= x))
+      or (t^.position.y < y) then
+    begin
+      result := i;
+      break;
+    end;
+  end;
+end;
+
 function TLexErrorList.getError(index: integer): TLexError;
 begin
   Result := PLexError(Items[index])^;
