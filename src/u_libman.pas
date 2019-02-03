@@ -243,6 +243,7 @@ var
   fls: string = '';
   fle: string;
   lne: string;
+  cnt: integer;
   i: integer;
 begin
   fModules.Clear;
@@ -253,13 +254,14 @@ begin
     prj := loadProject(fLibProject, true);
     str := TStringList.Create;
     try
-      for i:= 0 to prj.sourcesCount-1 do
+      cnt := prj.sourcesCount-1;
+      for i:= 0 to cnt do
       begin
         fle := prj.sourceAbsolute(i);
         if not hasDlangSyntax(fle.extractFileExt) then
           continue;
         fls += fle;
-        if i <> prj.sourcesCount-1 then
+        if i <> cnt then
           fls += PathSeparator;
       end;
       getModulesImports(fls, str);
@@ -287,13 +289,14 @@ begin
     str := TStringList.Create;
     try
       listFiles(str, fLibSourcePath, true);
-      for i:= 0 to str.Count-1 do
+      cnt := str.Count-1;
+      for i:= 0 to cnt do
       begin
         fle := str[i];
         if not hasDlangSyntax(fle.extractFileExt) then
           continue;
         fls += fle;
-        if i <> str.Count-1 then
+        if i <> cnt then
           fls += PathSeparator;
       end;
       str.Clear;
@@ -351,7 +354,6 @@ end;
 
 destructor TLibraryManager.destroy;
 begin
-  ForceDirectoriesUTF8(getDocPath);
   LibMan.saveToFile(getDocPath + libFname);
   fItemsByAlias.Free;
   fCollection.Free;
@@ -377,44 +379,43 @@ procedure TLibraryManager.FPOObservedChanged(ASender: TObject; Operation:
   TFPObservedOperation; Data: Pointer);
 var
   i,j: integer;
-  obj: TObject;
   lib: TLibraryItem;
   cli: TLibraryItem;
   dep: TLibraryItem;
 begin
   if data.isNil then
     exit;
-  obj := TObject(data);
-  if not (obj is TLibraryItem) then
+
+  if operation <> ooDeleteItem then
+    exit;
+  if not (TObject(data) is TLibraryItem) then
     exit;
   lib := TLibraryItem(data);
-  case operation of
-    ooDeleteItem: if fItemsByAlias.contains(lib.libAlias) then
+  if not fItemsByAlias.contains(lib.libAlias) then
+    exit;
+
+  for i:= 0 to lib.dependencies.Count-1 do
+  begin
+    dep := libraryByAlias[lib.dependencies[i]];
+    if assigned(dep) then
     begin
-      for i:= 0 to lib.dependencies.Count-1 do
-      begin
-        dep := libraryByAlias[lib.dependencies[i]];
-        if assigned(dep) then
-        begin
-          j := dep.clients.IndexOf(lib.libAlias);
-          if j <> -1 then
-            dep.clients.Delete(j);
-        end;
-      end;
-      for i:= 0 to lib.clients.Count-1 do
-      begin
-        cli := libraryByAlias[lib.clients[i]];
-        if assigned(cli) then
-        begin
-          j := cli.dependencies.IndexOf(lib.libAlias);
-          if j <> -1 then
-            cli.dependencies.Delete(j);
-        end;
-      end;
-      DCDWrapper.remImportFolder(lib.libSourcePath);
-      fItemsByAlias.delete(lib.libAlias);
+      j := dep.clients.IndexOf(lib.libAlias);
+      if j <> -1 then
+        dep.clients.Delete(j);
     end;
   end;
+  for i:= 0 to lib.clients.Count-1 do
+  begin
+    cli := libraryByAlias[lib.clients[i]];
+    if assigned(cli) then
+    begin
+      j := cli.dependencies.IndexOf(lib.libAlias);
+      if j <> -1 then
+        cli.dependencies.Delete(j);
+    end;
+  end;
+  DCDWrapper.remImportFolder(lib.libSourcePath);
+  fItemsByAlias.delete(lib.libAlias);
 end;
 
 procedure TLibraryManager.updateAfterAddition(lib: TLibraryItem);
