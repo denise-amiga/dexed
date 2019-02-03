@@ -65,7 +65,7 @@ type
     tree: TTreeView;
     procedure btnClearClick(Sender: TObject);
     procedure btnEditClick(Sender: TObject);
-    function fltItemsFilterItem(Item: TObject; out Done: Boolean): Boolean;
+    function fltItemsFilterNode(ItemNode: TTreeNode; out Done: Boolean): Boolean;
     procedure shortcutCatcherExit(Sender: TObject);
     procedure shortcutCatcherMouseLeave(Sender: TObject);
     procedure propeditModified(Sender: TObject);
@@ -377,26 +377,23 @@ begin
   propedit.Rows[0].Editor.Edit;
 end;
 
-function TShortcutEditor.fltItemsFilterItem(Item: TObject; out Done: Boolean): Boolean;
+function TShortcutEditor.fltItemsFilterNode(ItemNode: TTreeNode; out Done: Boolean): Boolean;
 var
-  shc: TShortcutItem;
+  s: TShortcutItem;
+  b: boolean;
 begin
   if fltItems.Filter.isBlank then
-  begin
-    result := true;
-    done := true;
-  end
-  else
-  begin
-    result := false;
-    done := false;
-    // see TTreeFilterEdit: they pass TObject(TTreeNode.Data) and not a TTreeNode
-    if Pointer(item).isNil then
-      exit;
-    shc := TShortcutItem(item);
-    result := AnsiContainsText(shc.combination, fltItems.Filter);
-    done := true;
-  end;
+    exit(true);
+
+  // keep categories
+  if ItemNode.Parent.isNil then
+    exit(true);
+
+  b := AnsiContainsText(ItemNode.Text, fltItems.Filter);
+  if ItemNode.Data.isNil then
+    exit(b);
+  s := TShortcutItem(ItemNode.Data);
+  result := AnsiContainsText(s.combination, fltItems.Filter) or b;
 end;
 
 procedure TShortcutEditor.updateEditCtrls;

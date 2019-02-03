@@ -25,7 +25,6 @@ object ShortcutEditor: TShortcutEditor
       Height = 27
       Top = 2
       Width = 420
-      OnFilterItem = fltItemsFilterItem
       ButtonWidth = 28
       Align = alTop
       BorderSpacing.Around = 2
@@ -33,6 +32,7 @@ object ShortcutEditor: TShortcutEditor
       MaxLength = 0
       TabOrder = 0
       FilteredTreeview = tree
+      OnFilterNode = fltItemsFilterNode
     end
     object tree: TTreeView
       Left = 2
