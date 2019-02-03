@@ -31,7 +31,6 @@ type
     fCompilProc: TDexedProcess;
     fOnChange: TNotifyEvent;
     fModified: boolean;
-    fPreCompilePath: string;
     fRootFolder: string;
     fBasePath: string;
     fRunnerOldCwd: string;
@@ -749,7 +748,9 @@ var
   prc: TProcess;
   nme: string;
   i, j: integer;
+  chd: string;
 begin
+  chd := fFilename.extractFilePath;
   for i := 0 to processInfo.simpleCommands.Count-1 do
   begin
     nme := fSymStringExpander.expand(processInfo.simpleCommands[i]);
@@ -762,6 +763,7 @@ begin
       prc.Executable := lst[0];
       prc.Options:= [poUsePipes, poStderrToOutPut];
       lst.Delete(0);
+      prc.CurrentDirectory:= chd;
       prc.Parameters.Assign(lst);
       prc.XTermProgram:=consoleProgram;
       prc.Execute;
@@ -779,13 +781,13 @@ begin
     if not com then
       exit(false);
   end;
-  //
+
   nme := fSymStringExpander.expand(processInfo.executable);
   if (not exeInSysPath(nme)) and nme.isNotEmpty then
     exit(false)
   else if nme.isEmpty then
     exit(true);
-  //
+
   prc := TProcess.Create(nil);
   try
     processInfo.setProcess(prc);
@@ -796,8 +798,9 @@ begin
     for i:= 0 to j do
       prc.Parameters.Delete(0);
     if prc.CurrentDirectory.isNotEmpty then
-      prc.CurrentDirectory := fSymStringExpander.expand(prc.CurrentDirectory);
-    // else cwd is set to project dir in compile()
+      prc.CurrentDirectory := fSymStringExpander.expand(prc.CurrentDirectory)
+    else
+      prc.CurrentDirectory:= chd;
     ensureNoPipeIfWait(prc);
     prc.Execute;
     while prc.Running do
@@ -841,34 +844,22 @@ begin
       fAsProjectItf, amcProj, amkErr);
     exit;
   end;
-  //
+
   fMsgs.clearByData(fAsProjectItf);
   subjProjCompiling(fProjectSubject, Self);
-  //
   prjpath := fFileName.extractFilePath;
-  fPreCompilePath := GetCurrentDirUTF8;
-  SetCurrentDirUTF8(prjpath);
-  //
   if not runPrePostProcess(config.preBuildProcess) then
     fMsgs.message('warning: pre-compilation process or commands not properly executed',
       fAsProjectItf, amcProj, amkWarn);
-  //
-  SetCurrentDirUTF8(prjpath);
-  //
   if (Sources.Count = 0) and (config.pathsOptions.extraSources.Count = 0) then
-  begin
-    SetCurrentDirUTF8(fPreCompilePath);
     exit;
-  end;
-  //
+
   prjname := shortenPath(filename, 25);
   fCompilProc := TDexedProcess.Create(nil);
   subjProjCompiling(fProjectSubject, fAsProjectItf);
   fMsgs.message('compiling ' + prjname, fAsProjectItf, amcProj, amkInf);
   fMsgs.message(usingCompilerInfo(CEProjectCompiler), fAsProjectItf, amcProj, amkInf);
-  // this doesn't work under linux, so the previous ChDir.
-  if prjpath.dirExists then
-    fCompilProc.CurrentDirectory := prjpath;
+  fCompilProc.CurrentDirectory := prjpath;
   fCompilProc.Executable := CEProjectCompilerFilename;
   fCompilProc.Options := fCompilProc.Options + [poStderrToOutPut, poUsePipes];
   fCompilProc.ShowWindow := swoHIDE;
@@ -1002,8 +993,6 @@ begin
     fMsgs.message( 'warning: post-compilation process or commands not properly executed',
       fAsProjectItf, amcProj, amkWarn);
   subjProjCompiled(fProjectSubject, fAsProjectItf, fCompiled);
-  //
-  SetCurrentDirUTF8(fPreCompilePath);
 end;
 
 function TNativeProject.targetUpToDate: boolean;
