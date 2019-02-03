@@ -3085,6 +3085,7 @@ begin
   	dmdproc.OnReadData := @asyncprocOutput;
   	dmdproc.OnTerminate:= @asyncprocTerminate;
     dmdproc.Options := [poUsePipes, poStderrToOutPut];
+    dmdproc.CurrentDirectory:=fDoc.fileName.extractFileDir;
     case fRunnablesOptions.compiler of
       dmd: dmdProc.Executable := fCompilerSelector.getCompilerPath(dmd);
       gdc, gdmd: dmdProc.Executable := fCompilerSelector.getCompilerPath(gdmd);
@@ -3228,13 +3229,13 @@ begin
   end;
   lst := TStringList.Create;
   try
-    fRunProc.CurrentDirectory := fRunProc.Executable.extractFileDir;
     if runArgs.isNotEmpty then
     begin
       CommandToList(fSymStringExpander.expand(runArgs), lst);
       fRunProc.Parameters.AddStrings(lst);
     end;
     fRunProc.Executable := fname;
+    fRunProc.CurrentDirectory := fRunProc.Executable.extractFileDir;
     if unittest and fCovModUt then
       fRunProc.OnTerminate:=@unittestDone;
     if redirect then
