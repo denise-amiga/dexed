@@ -1388,37 +1388,37 @@ end;
 
 procedure TDubProject.updateTargetKindFromJson;
 var
-  found: boolean = false;
-  conf: TJSONObject;
-  src: string;
+  a: boolean = false;
+  b: boolean = false;
+  c: TJSONObject;
+  s: string;
 begin
   fBinKind := executable;
-  if fJSON.isNil then exit;
-  // note: this is only used to known if output can be launched
-  found := findTargetKindInd(fJSON);
-  conf := getCurrentCustomConfig;
-  if conf.isNotNil then
-    found := found or findTargetKindInd(conf);
-  if not found then
+  if fJSON.isNil then
+    exit;
+  a := findTargetKindInd(fJSON);
+  c := getCurrentCustomConfig;
+  if c.isNotNil then
+    b := findTargetKindInd(c);
+  if a or b then
+    exit;
+
+  for s in fSrcs do
   begin
-    for src in fSrcs do
+    if (s = 'source' + DirectorySeparator + 'app.d')
+      or (s = 'src' + DirectorySeparator + 'app.d')
+      or (s = 'source' + DirectorySeparator + 'main.d')
+      or (s = 'src' + DirectorySeparator + 'main.d')
+      or (s = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
+      or (s = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
+      or (s = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
+      or (s = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
+    then
     begin
-      if (src = 'source' + DirectorySeparator + 'app.d')
-        or (src = 'src' + DirectorySeparator + 'app.d')
-        or (src = 'source' + DirectorySeparator + 'main.d')
-        or (src = 'src' + DirectorySeparator + 'main.d')
-        or (src = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
-        or (src = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
-        or (src = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
-        or (src = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
-      then
-      begin
-        fBinKind:= executable;
-        break;
-      end
-      else
-        fBinKind:= staticlib;
-    end;
+      fBinKind:= executable;
+      break;
+    end
+    else fBinKind:= staticlib;
   end;
 end;
 
