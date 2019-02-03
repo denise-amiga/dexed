@@ -1264,7 +1264,6 @@ begin
   fLifeTimeStatusProvider := TLifetimeProvider.create;
   fLifeTimeStatusProvider.lifetimeStatus:=lfsLoading;
 
-
   inherited create(aOwner);
 
   // provide defaults, necessary because not handled by docking.xml
@@ -1304,6 +1303,7 @@ begin
   mainMenu.Items.Add(mnuItemHelp);
 
   fProcInputHandler := getprocInputHandler;
+
   fInitialized := true;
 end;
 
@@ -1417,12 +1417,12 @@ var
   z: array[TIconScaledSize] of integer = (16, 24, 32);
   i: integer;
 
-function loadIcon(value: string): integer;
-const
-  s: array[TIconScaledSize] of string = ('', '24', '32');
-begin
-  result := fImages.AddResourceName(HINSTANCE, value + s[c]);
-end;
+  function loadIcon(value: string): integer;
+  const
+    s: array[TIconScaledSize] of string = ('', '24', '32');
+  begin
+    result := fImages.AddResourceName(HINSTANCE, value + s[c]);
+  end;
 
 begin
   c := GetIconScaledSize;
@@ -2336,6 +2336,7 @@ var
   fname: string;
   clickTrg: TNotifyEvent;
   i: integer;
+  s: string;
 begin
   srcLst := TMRUFileList(Sender);
   if srcLst.isNil then
@@ -2356,17 +2357,16 @@ begin
 
     trgMnu.Clear;
 
-
     for i := 0 to srcLst.Count-1 do
     begin
-
+      s := srcLst.Strings[i];
       if srcLst = fFileMru then
-        fname := srcLst.Strings[i].extractFileName
+        fname := s.extractFileName
       else
-        fname := srcLst.Strings[i].extractFileDir.extractFileName;
+        fname := s.extractFileDir.extractFileName;
 
       itm := TMenuItem.Create(trgMnu);
-      itm.Hint := srcLst.Strings[i];
+      itm.Hint := s;
       itm.Caption := fname + ' - (' + itm.Hint + ')';
       itm.OnClick := clickTrg;
       trgMnu.Add(itm);
@@ -2392,7 +2392,6 @@ begin
   if srcLst.isNotNil then
     srcLst.Clear;
 end;
-
 {$ENDREGION}
 
 {$REGION IMultiDocMonitor ----------------------------------------------------}
