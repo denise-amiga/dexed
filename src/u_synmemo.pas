@@ -3056,11 +3056,13 @@ begin
   IncPaintLock;
   fDscannerResults.clear;
   for i:= Marks.Count-1 downto 0 do
-    if marks.Items[i].ImageIndex = longint(giWarn) then
   begin
     n := marks.Items[i];
-    marks.Delete(i);
-    FreeAndNil(n);
+    if n.ImageIndex = longint(giWarn) then
+    begin
+      marks.Delete(i);
+      FreeAndNil(n);
+    end;
   end;
   DecPaintLock;
   repaint;
@@ -3851,10 +3853,14 @@ end;
 procedure TDexedMemo.removeDebugTimeMarks;
 var
   i: integer;
+  n: TSynEditMark;
 begin
   IncPaintLock;
   for i:= marks.Count-1 downto 0 do
-    Marks.Items[i].Visible := not (TGutterIcon(Marks.Items[i].ImageIndex) in debugTimeGutterIcons);
+  begin
+    n := Marks.Items[i];
+    n.Visible := not (TGutterIcon(n.ImageIndex) in debugTimeGutterIcons);
+  end;
   DecPaintLock;
 end;
 
@@ -3898,8 +3904,9 @@ begin
   if m.isNotNil then
     for i := 0 to m.Count-1 do
   begin
-    s := m.Items[i].ImageIndex = longint(value);
-    m.Items[i].Visible := s;
+    n := m.Items[i];
+    s := n.ImageIndex = longint(value);
+    n.Visible := s;
   end;
   if not s then
   begin

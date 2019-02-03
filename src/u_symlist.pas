@@ -850,7 +850,8 @@ procedure TSymbolListWidget.toolTerminated(sender: TObject);
 
 var
   i: Integer;
-  flt: string;
+  f: string;
+  n: TTreeNode;
 begin
   if ndAlias.isNil then
     exit;
@@ -866,7 +867,7 @@ begin
     exit;
   fSyms.LoadFromTool(fToolProc.StdoutEx);
 
-  flt := TreeFilterEdit1.Filter;
+  f := TreeFilterEdit1.Filter;
   TreeFilterEdit1.Text := '';
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
@@ -880,18 +881,22 @@ begin
   end;
   if fSortSymbols then
     for i:= 0 to tree.Items.Count-1 do
-      if Tree.Items[i].Count > 0 then
-        tree.Items[i].CustomSort(nil);
+  begin
+    n := Tree.Items[i];
+    if n.Count > 0 then
+      n.CustomSort(nil);
+  end;
   if fSmartExpander then
     smartExpand;
   tree.EndUpdate;
-  if flt.isNotEmpty then
-    TreeFilterEdit1.Text := flt;
+  if f.isNotEmpty then
+    TreeFilterEdit1.Text := f;
 end;
 
 procedure TSymbolListWidget.smartExpand;
 var
   i: integer;
+  n: TTreeNode;
   target: NativeUint;
   nearest: NativeUint = 0;
   toExpand: TTreeNode = nil;
@@ -903,23 +908,24 @@ var
   begin
     for i := 0 to root.Count-1 do
     begin
-      if root.Items[i].Data.isNil then
+      n := root.Items[i];
+      if n.Data.isNil then
         continue;
-      if root.Items[i].Parent.isNil then
+      if n.Parent.isNil then
         continue;
-      case root.Items[i].Parent.Text of
+      case n.Parent.Text of
         'Alias', 'Enum', 'Import', 'Variable':
           continue;
       end;
       {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
-      line := NativeUInt(root.Items[i].Data);
+      line := NativeUInt(n.Data);
       {$POP}
       if line > target then
         continue;
       if line > nearest then
       begin
         nearest := line;
-        toExpand := root.Items[i];
+        toExpand := n;
       end;
     end;
   end;

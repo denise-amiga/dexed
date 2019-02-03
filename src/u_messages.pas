@@ -481,16 +481,20 @@ end;
 procedure TMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  i: Integer;
+  i: integer;
+  n: TTreeNode;
 begin
   case Key of
     VK_BACK, VK_DELETE:
     begin
       if List.SelectionCount > 0 then
       begin
-      for i := List.Items.Count-1 downto 0 do
-        if List.Items[i].MultiSelected then
-          List.Items.Delete(List.Items[i]);
+        for i := List.Items.Count-1 downto 0 do
+        begin
+          n := List.Items[i];
+          if n.MultiSelected then
+            List.Items.Delete(n);
+        end;
       end
       else clearbyContext(amcAll);
     end;
@@ -720,23 +724,31 @@ end;
 
 procedure TMessagesWidget.actCopyMsgExecute(Sender: TObject);
 var
-  i: Integer;
-  str: string = '';
+  i: integer;
+  s: string = '';
+  n: TTreeNode;
 begin
   for i := 0 to List.Items.Count-1 do
-    if List.Items[i].MultiSelected then
-      str += List.Items[i].Text + LineEnding;
-  Clipboard.AsText := str;
+  begin
+    n := List.Items[i];
+    if n.MultiSelected then
+      s += n.Text + LineEnding;
+  end;
+  Clipboard.AsText := s;
 end;
 
 procedure TMessagesWidget.actSelAllExecute(Sender: TObject);
 var
-  i: Integer;
+  i: integer;
+  n: TTreeNode;
 begin
   List.BeginUpdate;
   for i := 0 to List.Items.Count-1 do
-    if List.Items[i].Visible then
-      List.Items[i].MultiSelected := true;
+  begin
+    n := List.Items[i];
+    if n.Visible then
+      n.MultiSelected := true;
+  end;
   List.EndUpdate;
 end;
 
@@ -933,8 +945,9 @@ end;
 
 procedure TMessagesWidget.clearByContext(aCtxt: TAppMessageCtxt);
 var
-  i: Integer;
-  msgdt: PMessageData;
+  i: integer;
+  d: PMessageData;
+  n: TTreeNode;
 begin
   list.BeginUpdate;
   TreeFilterEdit1.Filter := '';
@@ -942,17 +955,19 @@ begin
     List.Items.Clear
   else for i := List.Items.Count-1 downto 0 do
   begin
-    msgdt := PMessageData(List.Items[i].Data);
-    if msgdt^.ctxt = aCtxt then
-      List.Items.Delete(List.Items[i]);
+    n := List.Items[i];
+    d := PMessageData(n.Data);
+    if d^.ctxt = aCtxt then
+      List.Items.Delete(n);
   end;
   list.EndUpdate;
 end;
 
 procedure TMessagesWidget.clearByData(data: Pointer);
 var
-  i: Integer;
-  msgdt: PMessageData;
+  i: integer;
+  d: PMessageData;
+  n: TTreeNode;
 begin
   if data.isNil then
     exit;
@@ -962,9 +977,10 @@ begin
   TreeFilterEdit1.Filter := '';
   for i := List.Items.Count-1 downto 0 do
   begin
-    msgdt := PMessageData(List.Items[i].Data);
-    if (msgdt^.data = data) then
-      List.Items.Delete(List.Items[i]);
+    n := List.Items[i];
+    d := PMessageData(n.Data);
+    if (d^.data = data) then
+      List.Items.Delete(n);
   end;
   list.EndUpdate;
 end;

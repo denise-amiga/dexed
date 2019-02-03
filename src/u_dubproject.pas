@@ -903,7 +903,7 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
-{$REGION ICommonProject: sources ---------------------------------------------}
+{$REGION ICommonProject: sources -----------------------------------------------}
 function TDubProject.isSource(const fname: string): boolean;
 var
   str: string;
