@@ -395,6 +395,7 @@ type
     fDoc: TDexedMemo;
     fFirstTimeRun: boolean;
     fMultidoc: IMultiDocHandler;
+    fProcInputHandler: IProcInputHandler;
     fScCollectCount: Integer;
     fUpdateCount: NativeInt;
     fProject: ICommonProject;
@@ -1302,6 +1303,7 @@ begin
   mainMenu.Items.Remove(mnuItemHelp);
   mainMenu.Items.Add(mnuItemHelp);
 
+  fProcInputHandler := getprocInputHandler;
   fInitialized := true;
 end;
 
@@ -1954,21 +1956,21 @@ end;
 
 procedure TMainForm.FreeRunnableProc;
 var
-  fname: string;
+  f: string;
 begin
   if fRunProc.isNil then
     exit;
 
-  fname := fRunProc.Executable;
-  if getprocInputHandler.process = fRunProc  then
+  f := fRunProc.Executable;
+  if fProcInputHandler.process = fRunProc  then
   begin
     getMessageDisplay.message('the execution of a runnable module ' +
       'has been implicitly aborted', fDoc, amcEdit, amkWarn);
-    getprocInputHandler.addProcess(nil);
+    fProcInputHandler.addProcess(nil);
   end;
   killProcess(fRunProc);
-  if fname.fileExists and (fname.extractFilePath = GetTempDir(false)) then
-    sysutils.DeleteFile(fname);
+  if f.fileExists and (f.extractFilePath = GetTempDir(false)) then
+    sysutils.DeleteFile(f);
 end;
 
 procedure TMainForm.SaveLastDocsAndProj;
