@@ -846,8 +846,7 @@ begin
     fHasLoaded := true;
 
   updateFields;
-  if not inGroup then
-    restorePersistentMetadata();
+  restorePersistentMetadata();
 
   subjProjChanged(fProjectSubject, self);
   fModified := false;
@@ -967,14 +966,17 @@ begin
       LoadFromFile(f);
     except
     end;
-    t := values['last_dexed_buildType'];
-    c := values['last_dexed_config'];
-    if t.isNotEmpty and c.isNotEmpty then
-      for i := 0 to configurationCount-1 do
-        if configurationName(i) = t + ' - ' + c then
+    if not inGroup then
     begin
-      setActiveConfigurationIndex(i);
-      break;
+      t := values['last_dexed_buildType'];
+      c := values['last_dexed_config'];
+      if t.isNotEmpty and c.isNotEmpty then
+        for i := 0 to configurationCount-1 do
+          if configurationName(i) = t + ' - ' + c then
+      begin
+        setActiveConfigurationIndex(i);
+        break;
+      end;
     end;
     fMetaEnv.Clear;
     fMetaEnv.AddText(values['project_environment_vars']);
