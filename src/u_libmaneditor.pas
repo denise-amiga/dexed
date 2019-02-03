@@ -66,6 +66,7 @@ type
   private
     fProj: ICommonProject;
     fFreeProj: ICommonProject;
+    fLibman: TLibraryManager;
     procedure updateButtonsState;
     procedure projNew(project: ICommonProject);
     procedure projChanged(project: ICommonProject);
@@ -104,6 +105,7 @@ constructor TLibManEditorWidget.Create(aOwner: TComponent);
 begin
   inherited;
   TListViewCopyMenu.create(List);
+  fLibman := LibMan;
 end;
 
 procedure TLibManEditorWidget.updateButtonsState;
@@ -205,7 +207,7 @@ var
   itm: TListItem;
 begin
   itm := List.Items.Add;
-  itm.Data := LibMan.libraries.Add;
+  itm.Data := fLibman.libraries.Add;
   itm.Caption := notav;
   itm.SubItems.Add(notav);
   itm.SubItems.Add(notav);
@@ -575,7 +577,7 @@ begin
         if (ovw and not List.items.findCaption(nme, row)) or not ovw then
           row := List.Items.Add;
         if row.Data.isNil then
-          row.Data := LibMan.libraries.Add;
+          row.Data := fLibman.libraries.Add;
         row.Caption:= nme;
         row.SubItems.Clear;
         nme := projectSourcePath(prj as ICommonProject);
@@ -608,7 +610,7 @@ begin
       if (ovw and not List.items.findCaption(nme, row)) or not ovw then
         row := List.Items.Add;
       if row.Data.isNil then
-        row.Data := LibMan.libraries.Add;
+        row.Data := fLibman.libraries.Add;
       row.Caption := nme;
       row.SubItems.Clear;
       if prj.binaryKind = staticlib then
@@ -647,15 +649,15 @@ begin
   al := List.Selected.Caption;
   if inputQuery('library alias', '', al) then
   begin
-    for i := 0 to LibMan.librariesCount-1 do
-      if (LibMan.libraryByIndex[i].libAlias = al) and
-        (LibMan.libraryByIndex[i] <> itemForRow(List.Selected)) then
+    for i := 0 to fLibman.librariesCount-1 do
+      if (fLibman.libraryByIndex[i].libAlias = al) and
+        (fLibman.libraryByIndex[i] <> itemForRow(List.Selected)) then
     begin
       dlgOkError('This alias is already used by another library, the renaming is canceled');
       exit;
     end;
     List.Selected.Caption := al;
-    LibMan.updateItemsByAlias;
+    fLibman.updateItemsByAlias;
     RowToLibrary(List.Selected);
   end;
 
@@ -737,7 +739,7 @@ begin
     end;
 
     row := List.Items.Add;
-    row.Data := LibMan.libraries.Add;
+    row.Data := fLibman.libraries.Add;
     row.Caption := lalias;
     if (fname.extractFileExt <> libExt) then
     begin
@@ -775,7 +777,7 @@ begin
   if List.Selected.isNil then
     exit;
 
-  LibMan.libraries.Delete(List.Selected.Index);
+  flibman.libraries.Delete(List.Selected.Index);
   List.Items.Delete(List.Selected.Index);
   updateButtonsState;
 end;
@@ -873,7 +875,7 @@ begin
 
   i := list.Selected.Index;
   list.Items.Exchange(i, i - 1);
-  LibMan.libraries.Exchange(i, i - 1);
+  fLibman.libraries.Exchange(i, i - 1);
 end;
 
 procedure TLibManEditorWidget.btnMoveDownClick(Sender: TObject);
@@ -885,7 +887,7 @@ begin
 
   i := list.Selected.Index;
   list.Items.Exchange(i, i + 1);
-  LibMan.libraries.Exchange(i, i + 1);
+  fLibman.libraries.Exchange(i, i + 1);
 end;
 
 procedure TLibManEditorWidget.DoShow;
@@ -900,14 +902,11 @@ var
   row: TListItem;
   i: Integer;
 begin
-  if LibMan.isNil then
-    exit;
-
   List.BeginUpdate;
   List.Clear;
-  for i := 0 to LibMan.libraries.Count - 1 do
+  for i := 0 to fLibman.libraries.Count - 1 do
   begin
-    itm := TLibraryItem(LibMan.libraries.Items[i]);
+    itm := TLibraryItem(flibman.libraries.Items[i]);
     row := List.Items.Add;
     row.Data:= itm;
     row.Caption := itm.libAlias;
@@ -934,11 +933,11 @@ begin
   itm.enabled       := row.SubItems[3] = enableStr[true];
   itm.updateModulesInfo;
 
-  LibMan.updateDCD;
+  fLibman.updateDCD;
   if added then
-    LibMan.updateCrossDependencies
+    fLibman.updateCrossDependencies
   else
-    Libman.updateAfterAddition(itm);
+    fLibman.updateAfterAddition(itm);
 end;
 
 end.
