@@ -1858,7 +1858,7 @@ end;
 
 procedure TMainForm.SaveDocking;
 var
-  xcfg: TXMLConfigStorage;
+  x: TXMLConfigStorage;
   i: integer;
 begin
   if not fInitialized or not Visible then
@@ -1877,32 +1877,20 @@ begin
   end;
 
   forceDirectory(getDocPath);
-  xcfg := TXMLConfigStorage.Create(getDocPath + 'docking.xml.tmp', false);
+  x := TXMLConfigStorage.Create(getDocPath + 'docking.xml', false);
   try
-    DockMaster.SaveLayoutToConfig(xcfg);
-    xcfg.WriteToDisk;
-    // TODO-cdocking: remove this when AnchorDocking wont save anymore invalid layout
-    with TMemoryStream.Create do
-    try
-      LoadFromFile(getDocPath + 'docking.xml.tmp');
-      if Size < 10000 then
-      begin
-        SaveToFile(getDocPath + 'docking.xml');
-        SysUtils.DeleteFile(getDocPath + 'docking.xml.tmp');
-      end;
-    finally
-      free;
-    end;
+    DockMaster.SaveLayoutToConfig(x);
+    x.WriteToDisk;
   finally
-    xcfg.Free;
+    x.Free;
   end;
 
-  xcfg := TXMLConfigStorage.Create(getDocPath + 'dockingopts.xml',false);
+  x := TXMLConfigStorage.Create(getDocPath + 'dockingopts.xml',false);
   try
-    DockMaster.SaveSettingsToConfig(xcfg);
-    xcfg.WriteToDisk;
+    DockMaster.SaveSettingsToConfig(x);
+    x.WriteToDisk;
   finally
-    xcfg.Free;
+    x.Free;
   end;
 end;
 
@@ -1956,18 +1944,7 @@ begin
   begin
     x := TXMLConfigStorage.Create(getDocPath + 'dockingopts.xml', true);
     try
-      try
-        DockMaster.LoadSettingsFromConfig(x);
-      except
-        exit;
-      end;
-      s := TMemoryStream.Create;
-      try
-        x.SaveToStream(s);
-        s.saveToFile(getDocPath + 'dockingopts.bak')
-      finally
-        s.Free;
-      end;
+      DockMaster.LoadSettingsFromConfig(x);
     finally
       x.Free;
     end;
@@ -3637,41 +3614,29 @@ end;
 
 procedure TMainForm.layoutSaveToFile(const fname: string);
 var
-  xcfg: TXMLConfigStorage;
+  x: TXMLConfigStorage;
   i: integer;
+  w: TDexedWidget;
+  h: TAnchorDockHostSite;
 begin
   DockMaster.RestoreLayouts.Clear;
   for i:= 0 to fWidgList.Count-1 do
   begin
-    if not fWidgList.widget[i].isDockable then continue;
-    if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
-      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
-    else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
-      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
+    w := fWidgList.widget[i];
+    if not w.isDockable then
+      continue;
+    h := DockMaster.GetAnchorSite(w);
+    if h.isNotNil and ((h.WindowState = wsMinimized) or (not h.HasParent)) then
+      h.Close;
   end;
-  //
+
   forceDirectory(fname.extractFilePath);
-  xcfg := TXMLConfigStorage.Create(fname + '.tmp', false);
+  x := TXMLConfigStorage.Create(fname, false);
   try
-    DockMaster.SaveLayoutToConfig(xcfg);
-    xcfg.WriteToDisk;
-    // prevent any invalid layout to be saved (AnchorDocking bug)
-    // TODO-cdocking: remove this when AnchorDocking wont save anymore invalid layout
-    with TMemoryStream.Create do
-    try
-      LoadFromFile(fname + '.tmp');
-      if Size < 10000 then
-      begin
-        SaveToFile(fname);
-        SysUtils.DeleteFile(fname + '.tmp');
-      end else
-        getMessageDisplay.message('prevented an invalid layout to be saved', nil,
-          amcApp, amkWarn);
-    finally
-      free;
-    end;
+    DockMaster.SaveLayoutToConfig(x);
+    x.WriteToDisk;
   finally
-    xcfg.Free;
+    x.Free;
   end;
 end;
 
