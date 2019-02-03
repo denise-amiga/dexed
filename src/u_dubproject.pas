@@ -42,7 +42,9 @@ type
   strict private
     class var fLocalPackages: array of TDubLocalPackage;
     class var fDoneFirstUpdate: boolean;
+    class var fNeedUpdate: boolean;
   public
+    class procedure setNeedUpdate;
     class procedure deinit;
     class procedure update;
     class function find(const name: string; out package: PDubLocalPackage): boolean; overload;
@@ -342,15 +344,17 @@ end;
 function TDubLocalPackage.highestInInterval(constref lo, hi: TSemVer): PSemVer;
 var
   i: integer;
+  v: TSemVer;
 begin
   result := nil;
   for i := 0 to fVersions.Count-1 do
   begin
-    if fVersions[i]^ < lo then
+    v := fVersions[i]^;
+    if v < lo then
       continue;
-    if fVersions[i]^ < hi then
+    if v < hi then
       result := fVersions[i];
-    if (fVersions[i]^ > hi) then
+    if v > hi then
       break;
   end;
 end;
@@ -358,11 +362,15 @@ end;
 function TDubLocalPackage.findVersion(constref value: TSemVer): PSemVer;
 var
   i: integer;
+  v: PSemVer;
 begin
   result := nil;
   for i:= 0 to fVersions.Count-1 do
-    if fVersions.Items[i]^ = value then
-      exit(fVersions.Items[i]);
+  begin
+    v := fVersions.Items[i];
+    if v^ = value then
+      exit(v);
+  end;
 end;
 
 class procedure TDubLocalPackages.deinit;
@@ -371,7 +379,11 @@ var
 begin
   for i:= 0 to high(fLocalPackages) do
     fLocalPackages[i].Free;
-  inherited;
+end;
+
+class procedure TDubLocalPackages.setNeedUpdate;
+begin
+  fNeedUpdate:=true;;
 end;
 
 class procedure TDubLocalPackages.update;
@@ -394,10 +406,15 @@ begin
     Lfm := getLifeTimeManager;
   if not assigned(Lfm) or not (Lfm.getLifetimeStatus = lfsLoaded) then
   begin
-    if fDoneFirstUpdate then
+    if fDoneFirstUpdate and (not fNeedUpdate) then
       exit;
+    fNeedUpdate := true;
   end;
   fDoneFirstUpdate := true;
+
+  if not fNeedUpdate then
+    exit;
+  fNeedUpdate := false;
 
   for i := 0 to high(fLocalPackages) do
     fLocalPackages[i].Free;
@@ -475,7 +492,19 @@ var
   hi: TSemVer;
 begin
   result := nil;
-  if op = '=' then
+  if op = '~>' then
+  begin
+    if find(name, package) then
+    begin
+      hi := opVer;
+      hi.minor := hi.minor + 1;
+      hi.patch := 0;
+      hi.additional :='';
+      result := package^.highestInInterval(opVer, hi);
+      result := result;
+    end;
+  end
+  else if op = '=' then
   begin
     if find(name, package) then
       result := package^.findVersion(opVer);
@@ -496,18 +525,6 @@ begin
       result := package^.highest;
       if (result^ < opVer) or (result^ = opVer) then
         result := nil;
-    end;
-  end
-  else if op = '~>' then
-  begin
-    if find(name, package) then
-    begin
-      hi := opVer;
-      hi.minor := hi.minor + 1;
-      hi.patch := 0;
-      hi.additional :='';
-      result := package^.highestInInterval(opVer, hi);
-      result := result;
     end;
   end
   else
@@ -1494,7 +1511,10 @@ procedure TDubProject.updateImportPathsFromJson;
             Execute;
             while Running do ;
             if ExitStatus = 0 then
+            begin
+              TDubLocalPackages.setNeedUpdate;
               TDubLocalPackages.update();
+            end;
           finally
             free;
           end;
@@ -1540,6 +1560,7 @@ procedure TDubProject.updateImportPathsFromJson;
               while Running do ;
               if ExitStatus = 0 then
               begin
+                TDubLocalPackages.setNeedUpdate;
                 TDubLocalPackages.update();
                 u := TDubLocalPackages.find(n, o, q, pck);
               end;
