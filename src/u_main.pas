@@ -1689,6 +1689,7 @@ var
   i: Integer;
   w: TDexedWidget;
   s: TAnchorDockSplitter;
+  h: TAnchorDockHostSite;
 begin
 
   if not reset then
@@ -1727,8 +1728,9 @@ begin
           continue;
         if w = fEditWidg then
           continue;
-        if DockMaster.GetAnchorSite(w).isNotNil then
-          DockMaster.GetAnchorSite(w).ManualFloat(w.ClientRect, false);
+        h := DockMaster.GetAnchorSite(w);
+        if h.isNotNil then
+          h.ManualFloat(w.ClientRect, false);
       end;
     end;
 
