@@ -70,8 +70,6 @@ type
     // passes compilation message as "to be guessed"
     procedure compProcOutput(proc: TObject);
     procedure compProcTerminated(proc: TObject);
-    function getObjectsDirectory: string; inline;
-    procedure getUpToDateObjects(str: TStrings);
   protected
     procedure beforeLoad; override;
     procedure afterSave; override;
@@ -877,7 +875,6 @@ begin
   fCompilProc.OnReadData:= @compProcOutput;
   fCompilProc.OnTerminate:= @compProcTerminated;
   getOpts(fCompilProc.Parameters);
-  //getUpToDateObjects(fCompilProc.Parameters);
   if CEProjectCompiler = gdc then
     fCompilProc.Parameters.Add('-gdc=gdc');
   fCompilProc.Execute;
@@ -1020,46 +1017,6 @@ begin
   for i := 0 to fSrcs.Count-1 do
     if fileAge(sourceAbsolute(i)) > dt then exit;
   result := true;
-end;
-
-function TNativeProject.getObjectsDirectory: string; inline;
-var
-  cfg: TCompilerConfiguration;
-begin
-  result := '';
-  cfg := currentConfiguration;
-  if (cfg.pathsOptions.objectDirectory <> '') and
-    DirectoryExistsUTF8(cfg.pathsOptions.objectDirectory) then
-      result := cfg.pathsOptions.objectDirectory;
-end;
-
-procedure TNativeProject.getUpToDateObjects(str: TStrings);
-var
-  odr: string;
-  src: string;
-  obj: string;
-  i: integer;
-begin
-  odr := getObjectsDirectory;
-  if odr.isEmpty then
-  begin
-    for i := 0 to fSrcs.Count-1 do
-    begin
-      src := sourceAbsolute(i);
-      obj := src.stripFileExt + objExt;
-      if obj.fileExists and src.fileExists then
-      begin
-        if FileAgeUTF8(src) > FileAgeUTF8(obj) then
-          DeleteFile(obj)
-        else
-          str.Add(obj);
-      end;
-    end;
-  end
-  else
-  begin
-
-  end;
 end;
 
 function TNativeProject.outputFilename: string;
