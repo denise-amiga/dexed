@@ -160,7 +160,7 @@ end;
 
 function TShortCutCollection.findIdentifier(const identifier: string): boolean;
 var
-  i: Integer;
+  i: integer;
 begin
   result := false;
   for i := 0 to count-1 do
@@ -170,12 +170,16 @@ end;
 
 function TShortCutCollection.findShortcut(aShortcut: Word): TShortcutItem;
 var
-  i: Integer;
+  i: integer;
+  s: TShortcutItem;
 begin
   result := nil;
   for i := 0 to count-1 do
-    if item[i].data = aShortcut then
-      exit(item[i]);
+  begin
+    s := item[i];
+    if s.data = aShortcut then
+      exit(s);
+  end;
 end;
 {$ENDREGION}
 
@@ -307,6 +311,7 @@ var
   s: TShortCut;
   d: TShortcutItem = nil;
   t: string;
+  n: TTreeNode;
   o: TTreeNode;
 const
   m1 = 'warning, "%s" is already assigned in the "%s" category and it is not guaranteed to work properly';
@@ -322,16 +327,17 @@ begin
   // warn but accept a dup if already in another category
   for i:= 0 to tree.Items.Count-1 do
   begin
-    if tree.Items[i] = tree.Selected.Parent then
+    n := tree.Items[i];
+    if n = tree.Selected.Parent then
       continue;
-    for j := 0 to Tree.Items[i].Count-1 do
+    for j := 0 to n.Count-1 do
     begin
-      o := Tree.Items[i].Items[j];
+      o := n.Items[j];
       if o.Data.isNil then
         continue;
       if TShortcutItem(o.Data).data = s then
       begin
-        dlgOkInfo(format(m1, [t, Tree.Items[i].Text]));
+        dlgOkInfo(format(m1, [t, n.Text]));
         break;
       end;
     end;
@@ -413,23 +419,31 @@ end;
 function TShortcutEditor.findCategory(const aName: string; aData: Pointer): TTreeNode;
 var
   i: integer;
+  n: TTreeNode;
 begin
   result := nil;
   for i:= 0 to tree.Items.Count-1 do
-    if tree.Items[i].Text = aName then
-      if tree.Items[i].Data = aData then
-        exit(tree.Items[i]);
+  begin
+    n := tree.Items[i];
+    if (n.Text = aName) and (n.Data = aData) then
+      exit(n);
+  end;
 end;
 
 function TShortcutEditor.findCategory(const aShortcutItem: TShortcutItem): string;
 var
-  i, j: integer;
+  i: integer;
+  j: integer;
+  n: TTreeNode;
 begin
   result := '';
   for i := 0 to tree.Items.Count-1 do
-    for j:= 0 to tree.Items.Item[i].Count-1 do
-      if tree.Items.Item[i].Items[j].Data = Pointer(aShortcutItem) then
-        exit(tree.Items.Item[i].Text);
+  begin
+    n := tree.Items.Item[i];
+    for j:= 0 to n.Count-1 do
+      if n.Items[j].Data = Pointer(aShortcutItem) then
+        exit(n.Text);
+  end;
 end;
 
 function TShortcutEditor.sortCategories(Cat1, Cat2: TTreeNode): integer;
@@ -445,25 +459,27 @@ var
   sht: word;
   idt: string;
   itm: TShortcutItem;
-procedure addItem();
-var
-  prt: TTreeNode;
-begin
-  // root category
-  if cat.isEmpty or idt.isEmpty then
-    exit;
-  prt := findCategory(cat, obs);
-  if prt.isNil then
-    prt := tree.Items.AddObject(nil, cat, obs);
-  // item as child
-  itm := TShortcutItem(fShortcuts.items.Add);
-  itm.identifier := idt;
-  itm.data:= sht;
-  itm.declarator := obs;
-  tree.Items.AddChildObject(prt, idt, itm);
-  cat := '';
-  idt := '';
-end;
+
+  procedure addItem();
+  var
+    prt: TTreeNode;
+  begin
+    // root category
+    if cat.isEmpty or idt.isEmpty then
+      exit;
+    prt := findCategory(cat, obs);
+    if prt.isNil then
+      prt := tree.Items.AddObject(nil, cat, obs);
+    // item as child
+    itm := TShortcutItem(fShortcuts.items.Add);
+    itm.identifier := idt;
+    itm.data:= sht;
+    itm.declarator := obs;
+    tree.Items.AddChildObject(prt, idt, itm);
+    cat := '';
+    idt := '';
+  end;
+
 begin
   tree.Items.Clear;
   fShortcuts.items.Clear;
