@@ -135,6 +135,7 @@ type
     fMsgs: IMessagesDisplay;
     fNextTerminatedCommand: TDubCommand;
     fAsProjectItf: ICommonProject;
+    fMetaEnv: TStringList;
     procedure doModified;
     procedure updateFields;
     procedure updatePackageNameFromJson;
@@ -148,8 +149,8 @@ type
     procedure dubProcTerminated(proc: TObject);
     function getCurrentCustomConfig: TJSONObject;
     procedure executeDub(command: TDubCommand; const runArgs: string = '');
-    procedure restorePersistentConfigId;
-    procedure storePersistentConfigId;
+    procedure restorePersistentMetadata;
+    procedure storePersistentMetadata;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -192,6 +193,7 @@ type
     procedure run(const runArgs: string = '');
     procedure test;
     function targetUpToDate: boolean;
+    function getPersistentEnvironment: TStrings;
 
     property json: TJSONObject read fJSON;
     property packageName: string read fPackageName;
@@ -683,6 +685,8 @@ begin
   fImportPaths := TStringList.Create;
   fImportPaths.Sorted:=true;
   fImportPaths.Duplicates:=dupIgnore;
+  fMetaEnv:= TStringList.create;
+  fMetaEnv.LineBreak:=';';
 
   json.Add('name', '');
   endModification;
@@ -695,8 +699,8 @@ end;
 
 destructor TDubProject.destroy;
 begin
-  if not inGroup and fHasLoaded then
-    storePersistentConfigId();
+  if fHasLoaded then
+    storePersistentMetadata();
   killProcess(fDubProc);
   subjProjClosing(fProjectSubject, self);
   fProjectSubject.free;
@@ -706,6 +710,7 @@ begin
   fConfigs.Free;
   fSrcs.Free;
   fImportPaths.Free;
+  fMetaEnv.free;
   inherited;
 end;
 {$ENDREGION --------------------------------------------------------------------}
@@ -842,7 +847,7 @@ begin
 
   updateFields;
   if not inGroup then
-    restorePersistentConfigId();
+    restorePersistentMetadata();
 
   subjProjChanged(fProjectSubject, self);
   fModified := false;
@@ -947,7 +952,7 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICommonProject: configs ---------------------------------------------}
-procedure TDubProject.restorePersistentConfigId;
+procedure TDubProject.restorePersistentMetadata;
 var
   f: string;
   t: string;
@@ -971,12 +976,14 @@ begin
       setActiveConfigurationIndex(i);
       break;
     end;
+    fMetaEnv.Clear;
+    fMetaEnv.AddText(values['project_environment_vars']);
   finally
     free;
   end;
 end;
 
-procedure TDubProject.storePersistentConfigId;
+procedure TDubProject.storePersistentMetadata;
 var
   f: string;
   n: string;
@@ -998,6 +1005,7 @@ begin
   try
     values['last_dexed_buildType'] := t;
     values['last_dexed_config'] := c;
+    values['project_environment_vars'] := fMetaEnv.text;
     try
       SaveToFile(f);
     except
@@ -1087,6 +1095,8 @@ procedure TDubProject.executeDub(command: TDubCommand; const runArgs: string = '
 var
   prjname: string;
   rargs: TStringList;
+  i: integer;
+  e: string;
 begin
   if fDubProc.isNotNil and fDubProc.Active then
   begin
@@ -1119,6 +1129,19 @@ begin
   else
   begin
     fDubProc.Options := fDubProc.Options + [poWaitOnExit, poNewConsole];
+  end;
+  if fMetaEnv.Count <> 0 then
+  begin
+    for i := 0 to fMetaEnv.Count-1 do
+    begin
+      e := fMetaEnv.Strings[i];
+      fDubProc.Environment.Add(e);
+    end;
+    for i := 0 to GetEnvironmentVariableCount-1 do
+    begin
+      e := GetEnvironmentString(i);
+      fDubProc.Environment.Add(e);
+    end;
   end;
   fDubProc.CurrentDirectory := fFilename.extractFilePath;
   fDubProc.XTermProgram:=consoleProgram;
@@ -1170,6 +1193,11 @@ function TDubProject.targetUpToDate: boolean;
 begin
   // rebuilding is done automatically when the command is 'run'
   result := true;
+end;
+
+function TDubProject.getPersistentEnvironment: TStrings;
+begin
+  result := fMetaEnv;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 

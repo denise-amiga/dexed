@@ -12,7 +12,6 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnWindowStateChange = FormWindowStateChange
   ShowHint = True
-  LCLVersion = '2.0.0.3'
   object mainMenu: TMainMenu
     top = 1
     object MenuItem1: TMenuItem
@@ -222,6 +221,9 @@ object MainForm: TMainForm
       end
       object MenuItem108: TMenuItem
         Action = actProjDscan
+      end
+      object MenuItem117: TMenuItem
+        Action = actProjSetEnv
       end
       object MenuItem40: TMenuItem
         Caption = '-'
@@ -845,6 +847,11 @@ object MainForm: TMainForm
       Category = 'Project'
       Caption = 'Git pull'
       OnExecute = actProjGitPullExecute
+    end
+    object actProjSetEnv: TAction
+      Category = 'Project'
+      Caption = 'Set persistent environment...'
+      OnExecute = actProjSetEnvExecute
     end
   end
   object ApplicationProperties1: TApplicationProperties

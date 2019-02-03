@@ -117,6 +117,7 @@ type
     actFileCloseAll: TAction;
     actFileNewClip: TAction;
     actEdFormat: TAction;
+    actProjSetEnv: TAction;
     actProjGitPull: TAction;
     actProjGitBranchesUpd: TAction;
     actProjNewDialog: TAction;
@@ -182,6 +183,7 @@ type
     MenuItem114: TMenuItem;
     MenuItem115: TMenuItem;
     MenuItem116: TMenuItem;
+    MenuItem117: TMenuItem;
     mnuGitBranch: TMenuItem;
     mnuItemDubDialog: TMenuItem;
     mnuItemHelp: TMenuItem;
@@ -322,6 +324,7 @@ type
     procedure actProjSaveGroupAsExecute(Sender: TObject);
     procedure actProjSaveGroupExecute(Sender: TObject);
     procedure actProjSelUngroupedExecute(Sender: TObject);
+    procedure actProjSetEnvExecute(Sender: TObject);
     procedure actProjStopCompExecute(Sender: TObject);
     procedure actProjTestExecute(Sender: TObject);
     procedure actSetRunnableSwExecute(Sender: TObject);
@@ -4251,6 +4254,24 @@ procedure TMainForm.actProjSelUngroupedExecute(Sender: TObject);
 begin
   if assigned(fFreeProj) then
     fFreeProj.activate;
+end;
+
+procedure TMainForm.actProjSetEnvExecute(Sender: TObject);
+var
+  p: TDubProject;
+  e: TStrings;
+  s: string;
+begin
+  if not assigned(fProject) or (fProject.getFormat <> pfDUB) then
+    exit;
+  p := TDubProject(fProject.getProject);
+  e := p.getPersistentEnvironment;
+  s := e.strictText;
+  if InputQuery('Persistent project environment', 'values (key=value;key=value;...)', s) then
+  begin
+    e.Clear;
+    e.AddText(s);
+  end;
 end;
 
 procedure TMainForm.actNewGroupExecute(Sender: TObject);
