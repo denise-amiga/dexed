@@ -186,7 +186,6 @@ var
   arg: string;
   prm: string;
   inp: string;
-  old: string;
 const
   confSpec = 'Are you sure you want to execute the "%s" tool ?';
 begin
@@ -203,7 +202,6 @@ begin
   if askConfirmation and (dlgOkCancel(format(confSpec, [toolAlias])) <> mrOk) then
     exit;
 
-  old := GetCurrentDirUTF8;
   fProcess := TDexedProcess.Create(nil);
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
@@ -228,7 +226,7 @@ begin
     end;
   end;
   ensureNoPipeIfWait(fProcess);
-  //
+
   if fProcess.Executable.fileExists then
   begin
     fProcess.Execute;
@@ -242,8 +240,6 @@ begin
       fProcess.CloseInput;
     end;
   end;
-  //
-  SetCurrentDirUTF8(old);
 end;
 
 procedure TToolItem.processOutput(sender: TObject);

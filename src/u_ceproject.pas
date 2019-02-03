@@ -33,7 +33,6 @@ type
     fModified: boolean;
     fRootFolder: string;
     fBasePath: string;
-    fRunnerOldCwd: string;
     fVersion: string;
     fLibAliases: TStringList;
     fAutoDeps: boolean;
@@ -157,24 +156,20 @@ begin
   fAsProjectItf := self as ICommonProject;
   fSymStringExpander := getSymStringExpander;
   fMsgs:= getMessageDisplay;
-  //
-  fRunnerOldCwd := GetCurrentDirUTF8;
   fProjectSubject := TProjectSubject.create;
-  //
   fLibAliases := TStringList.Create;
   fSrcs := TStringList.Create;
   fSrcs.OnChange := @subMemberChanged;
   fConfigs := TCollection.create(TCompilerConfiguration);
-  //
   reset;
   addDefaults;
   subjProjNew(fProjectSubject, self);
   subjProjChanged(fProjectSubject, self);
-  //
+
   {$IFNDEF WINDOWS}
   fBasePath := '/';
   {$ENDIF}
-  //
+
   fModified := false;
 end;
 
@@ -873,14 +868,10 @@ end;
 
 procedure TNativeProject.run(const runArgs: string = '');
 var
-  prm: string;
-  i: Integer;
-  cwd: string;
+  p: string;
+  i: integer;
 begin
   killProcess(fRunner);
-  if fRunnerOldCwd.dirExists then
-    ChDir(fRunnerOldCwd);
-  //
   fRunner := TDexedProcess.Create(nil);
   fRunner.XTermProgram:=consoleProgram;
   currentConfiguration.runOptions.setProcess(fRunner);
@@ -888,29 +879,24 @@ begin
   begin
     i := 1;
     repeat
-      prm := ExtractDelimited(i, runArgs, [' ']);
-      prm := fSymStringExpander.expand(prm);
-      if prm.isNotEmpty then
-        fRunner.Parameters.AddText(prm);
+      p := ExtractDelimited(i, runArgs, [' ']);
+      p := fSymStringExpander.expand(p);
+      if p.isNotEmpty then
+        fRunner.Parameters.AddText(p);
       Inc(i);
-    until prm = '';
+    until p = '';
   end;
-  //
+
   if not outputFilename.fileExists then
   begin
     fMsgs.message('output executable missing: ' + shortenPath(outputFilename, 25),
       fAsProjectItf, amcProj, amkErr);
     exit;
   end;
-  //
+
   fRunner.Executable := outputFilename;
-  fRunnerOldCwd := GetCurrentDirUTF8;
   if fRunner.CurrentDirectory.isEmpty then
-  begin
-    cwd := fRunner.Executable.extractFilePath;
-    SetCurrentDirUTF8(cwd);
-    fRunner.CurrentDirectory := cwd;
-  end;
+    fRunner.CurrentDirectory := fRunner.Executable.extractFilePath;
   if poUsePipes in fRunner.Options then
   begin
     fRunner.OnReadData := @runProcOutput;
@@ -938,16 +924,13 @@ begin
   finally
     lst.Free;
   end;
-  //
+
   proc := TProcess(sender);
   if not proc.Running then
   begin
     getprocInputHandler.removeProcess(TProcess(sender));
-    SetCurrentDirUTF8(fRunnerOldCwd);
-
     if proc is TDexedProcess then
       dproc := TDexedProcess(proc);
-
     if (proc.ExitStatus <> 0) then
     begin
       fMsgs.message(format('error: the process (%s) has returned the status %s',

@@ -114,7 +114,6 @@ type
     fInGroup: boolean;
     fHasLoaded: boolean;
     fDubProc: TDexedProcess;
-    fPreCompilePath: string;
     fPackageName: string;
     fFilename: string;
     fModified: boolean;
@@ -1082,12 +1081,10 @@ begin
         [fDubProc.autoKillProcThreshold]), nil, amcProj, amkWarn);
   end;
   subjProjCompiled(fProjectSubject, fAsProjectItf, fCompiled);
-  SetCurrentDirUTF8(fPreCompilePath);
 end;
 
 procedure TDubProject.executeDub(command: TDubCommand; const runArgs: string = '');
 var
-  olddir: string;
   prjname: string;
   rargs: TStringList;
 begin
@@ -1108,56 +1105,49 @@ begin
   fMsgs.clearByData(fAsProjectItf);
   prjname := shortenPath(fFilename);
   fDubProc:= TDexedProcess.Create(nil);
-  olddir  := GetCurrentDir;
-  try
-    subjProjCompiling(fProjectSubject, fAsProjectItf);
-    fMsgs.message(dubCmd2PreMsg[command] + prjname, fAsProjectItf, amcProj, amkInf);
-    if modified then
-      saveToFile(fFilename);
-    chDir(fFilename.extractFilePath);
-    fDubProc.Executable := 'dub' + exeExt;
-    if not dubBuildOptions.showConsole then
-    begin
-      fDubProc.Options := fDubProc.Options + [poStderrToOutPut, poUsePipes];
-      fDubProc.OnReadData:= @dubProcOutput;
-      fDubProc.ShowWindow := swoHIDE;
-    end
-    else
-    begin
-      fDubProc.Options := fDubProc.Options + [poWaitOnExit, poNewConsole];
-    end;
-    fDubProc.CurrentDirectory := fFilename.extractFilePath;
-    fDubProc.XTermProgram:=consoleProgram;
-    fDubProc.Parameters.Add(dubCmd2Arg[command]);
-    fDubProc.OnTerminate:= @dubProcTerminated;
-    if (command <> dcTest) or not dubBuildOptions.autoSelectTestConfig then
-    begin
-      fDubProc.Parameters.Add('--build=' + fBuildTypes[fBuiltTypeIx]);
-      if (fConfigs.Count <> 1) and (fConfigs[0] <> DubDefaultConfigName) then
-        fDubProc.Parameters.Add('--config=' + fConfigs[fConfigIx]);
-    end;
-    fDubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
-    dubBuildOptions.getOpts(fDubProc.Parameters);
-    if (command <> dcBuild) and runArgs.isNotEmpty then
-    begin
-      fDubProc.Parameters.Add('--');
-      rargs := TStringList.Create;
-      try
-        CommandToList(runArgs, rargs);
-        fDubProc.Parameters.AddStrings(rargs);
-      finally
-        rargs.Free;
-      end;
-    end;
-    fDubProc.Execute;
-  finally
-    SetCurrentDirUTF8(olddir);
+  subjProjCompiling(fProjectSubject, fAsProjectItf);
+  fMsgs.message(dubCmd2PreMsg[command] + prjname, fAsProjectItf, amcProj, amkInf);
+  if modified then
+    saveToFile(fFilename);
+  fDubProc.Executable := 'dub' + exeExt;
+  if not dubBuildOptions.showConsole then
+  begin
+    fDubProc.Options := fDubProc.Options + [poStderrToOutPut, poUsePipes];
+    fDubProc.OnReadData:= @dubProcOutput;
+    fDubProc.ShowWindow := swoHIDE;
+  end
+  else
+  begin
+    fDubProc.Options := fDubProc.Options + [poWaitOnExit, poNewConsole];
   end;
+  fDubProc.CurrentDirectory := fFilename.extractFilePath;
+  fDubProc.XTermProgram:=consoleProgram;
+  fDubProc.Parameters.Add(dubCmd2Arg[command]);
+  fDubProc.OnTerminate:= @dubProcTerminated;
+  if (command <> dcTest) or not dubBuildOptions.autoSelectTestConfig then
+  begin
+    fDubProc.Parameters.Add('--build=' + fBuildTypes[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs[0] <> DubDefaultConfigName) then
+      fDubProc.Parameters.Add('--config=' + fConfigs[fConfigIx]);
+  end;
+  fDubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
+  dubBuildOptions.getOpts(fDubProc.Parameters);
+  if (command <> dcBuild) and runArgs.isNotEmpty then
+  begin
+    fDubProc.Parameters.Add('--');
+    rargs := TStringList.Create;
+    try
+      CommandToList(runArgs, rargs);
+      fDubProc.Parameters.AddStrings(rargs);
+    finally
+      rargs.Free;
+    end;
+  end;
+  fDubProc.Execute;
 end;
 
 procedure TDubProject.compile;
 begin
-  fPreCompilePath := GetCurrentDirUTF8;
   executeDub(dcBuild);
 end;
 
@@ -1716,14 +1706,11 @@ var
   str: TStringList;
   jsn: TJSONData;
   prs: TJSONParser;
-  old: string;
 begin
   result := nil;
   dub := TProcess.Create(nil);
   str := TStringList.Create;
-  old := GetCurrentDirUTF8;
   try
-    SetCurrentDirUTF8(filename.extractFilePath);
     dub.Executable := 'dub' + exeExt;
     dub.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
     dub.ShowWindow := swoHIDE;
@@ -1754,7 +1741,6 @@ begin
       result := nil;
     end;
   finally
-    SetCurrentDirUTF8(old);
     dub.free;
     str.Free;
   end;
