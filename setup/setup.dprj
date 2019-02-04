@@ -21,7 +21,7 @@ object CurrentProject: TNativeProject
         ' zip-win32.bat'
       )
       preBuildProcess.showWindow = swoHIDE
-      postBuildProcess.executable = 'setupzip-win-noarch.bat'
+      postBuildProcess.executable = '<CPP>\setupzip-win-noarch.bat'
       postBuildProcess.workingDirectory = '<CPP>'
       postBuildProcess.options = [poUsePipes, poStderrToOutPut]
       postBuildProcess.parameters.Strings = (
@@ -53,7 +53,7 @@ object CurrentProject: TNativeProject
         ' zip-win64.bat'
       )
       preBuildProcess.showWindow = swoHIDE
-      postBuildProcess.executable = 'setupzip-win-noarch.bat'
+      postBuildProcess.executable = '<CPP>\setupzip-win-noarch.bat'
       postBuildProcess.workingDirectory = '<CPP>'
       postBuildProcess.options = [poUsePipes, poStderrToOutPut]
       postBuildProcess.parameters.Strings = (
