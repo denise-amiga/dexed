@@ -24,20 +24,20 @@ Dexed, the _D Extended EDitor_, is an IDE for the [D programming language](https
 
 ## Project information
 
-- :bookmark: latest release: version 3.7.5, Sat 2 Feb 2019.
+- :bookmark: latest release: version 3.7.6, Mon 4 Feb 2019.
 - :scroll: licensed under the terms of the Boost software license.
 - :dollar: Development can be supported with [Paypal donations](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AQDJVC39PJF7J).
 
-## Download version 3.7.5
+## Download version 3.7.6
 
 Download the zipped binaries or the zip that contains the setup program for you platform:
 
-- :package: [setup program for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed.3.7.5.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed.3.7.5.linux64.zip)
-- :package: [setup program for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed.3.7.5.win64.setup.zip)
-- :package: [binaries for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed.3.7.5.win64.zip)
-- :package: [rpm for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed-3.7.5-0.x86_64.rpm)
-- :package: [deb for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.5/dexed-3.7.5.amd64.deb)
+- :package: [setup program for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed.3.7.6.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed.3.7.6.linux64.zip)
+- :package: [setup program for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed.3.7.6.win64.setup.zip)
+- :package: [binaries for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed.3.7.6.win64.zip)
+- :package: [rpm for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed-3.7.6-0.x86_64.rpm)
+- :package: [deb for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.6/dexed-3.7.6.amd64.deb)
 
 The _zip_ archives allow to move freely the files.
 The _setup.zip_ archives contain a command line program that installs to predefined locations so that the software can be run without additional intervention.
