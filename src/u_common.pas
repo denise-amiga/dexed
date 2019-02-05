@@ -236,7 +236,7 @@ type
   function exeFullName(fname: string): string;
 
   (**
-   * Clears then fills aList with aProcess output stream.
+   * Clears and fills aList with aProcess output stream.
    *)
   procedure processOutputToStrings(process: TProcess; list: TStrings);
 
@@ -812,7 +812,7 @@ begin
   try
     repeat
       tryAdd;
-      if recursive then if isFolder(sr) then
+      if recursive and isFolder(sr) then
         listFiles(list, path + directorySeparator + sr.Name, recursive);
     until
       findNext(sr) <> 0;
@@ -869,8 +869,9 @@ begin
     pth := path[1..path.length-1];
     if pth[pth.length] in ['/', '\'] then
       pth := pth[1..pth.length-1];
-    if not pth.dirExists then exit(false);
-    //
+    if not pth.dirExists then
+      exit(false);
+
     files := TStringList.Create;
     try
       listFiles(files, pth, true);
@@ -1132,7 +1133,8 @@ var
   cnt: integer;
 begin
   result := '';
-  if files.Count = 0 then exit;
+  if files.Count = 0 then
+    exit;
   sink := TStringList.Create;
   try
     sink.Assign(files);
@@ -1360,7 +1362,8 @@ var
   str: string = '';
 begin
   if (proc.ExitStatus <> 0) and (poUsePipes in proc.Options) and not
-    (poStderrToOutPut in proc.Options) then with TStringList.Create do
+    (poStderrToOutPut in proc.Options) then
+      with TStringList.Create do
   try
     LoadFromStream(proc.Stderr);
     Insert(0, format('%s crashed with code: %d',

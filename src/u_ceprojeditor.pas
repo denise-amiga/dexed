@@ -89,7 +89,8 @@ end;
 procedure TProjectConfigurationWidget.SetVisible(value: boolean);
 begin
   inherited;
-  if Visible then updateImperative;
+  if Visible then
+    updateImperative;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -101,16 +102,16 @@ begin
   if project.getFormat <> pfDEXED then
     exit;
   enabled := true;
-  //
+
   fProj := TNativeProject(project.getProject);
-  if Visible then updateImperative;
+  if Visible then
+    updateImperative;
   syncroMode := false;
 end;
 
 procedure TProjectConfigurationWidget.projClosing(project: ICommonProject);
 begin
-  if fProj.isNil then exit;
-  if fProj <> project.getProject then
+  if fProj.isNil or (fProj <> project.getProject) then
     exit;
   inspector.TIObject := nil;
   inspector.ItemIndex := -1;
@@ -122,10 +123,10 @@ end;
 
 procedure TProjectConfigurationWidget.projChanged(project: ICommonProject);
 begin
-  if fProj.isNil then exit;
-  if fProj <> project.getProject then
+  if fProj.isNil or (fProj <> project.getProject) then
     exit;
-  if Visible then updateImperative;
+  if Visible then
+    updateImperative;
 end;
 
 procedure TProjectConfigurationWidget.projFocused(project: ICommonProject);
@@ -135,9 +136,9 @@ begin
   if project.getFormat <> pfDEXED then
     exit;
   enabled := true;
-  //
   fProj := TNativeProject(project.getProject);
-  if Visible then updateImperative;
+  if Visible then
+    updateImperative;
 end;
 
 procedure TProjectConfigurationWidget.projCompiling(project: ICommonProject);
@@ -152,10 +153,13 @@ end;
 {$REGION config. things --------------------------------------------------------}
 procedure TProjectConfigurationWidget.selConfChange(Sender: TObject);
 begin
-  if fProj.isNil then exit;
-  if Updating then exit;
-  if selConf.ItemIndex = -1 then exit;
-  //
+  if fProj.isNil then
+    exit;
+  if Updating then
+    exit;
+  if selConf.ItemIndex = -1 then
+    exit;
+
   beginImperativeUpdate;
   fProj.ConfigurationIndex := selConf.ItemIndex;
   endImperativeUpdate;
@@ -184,7 +188,8 @@ var
   i: Integer;
 begin
   i := fSynchroItem.IndexOf(Item);
-  if i = -1 then exit('');
+  if i = -1 then
+    exit('');
   result := fSynchroValue[i];
 end;
 
@@ -203,11 +208,15 @@ var
   trg_obj: TPersistent;
   i: Integer;
 begin
-  if fProj.isNil then exit;
-  if not fSyncroMode then exit;
-  if inspector.TIObject.isNil then exit;
-  if inspector.ItemIndex = -1 then exit;
-  //
+  if fProj.isNil then
+    exit;
+  if not fSyncroMode then
+    exit;
+  if inspector.TIObject.isNil then
+    exit;
+  if inspector.ItemIndex = -1 then
+    exit;
+
   storage := nil;
   src_prop:= nil;
   trg_prop:= nil;
@@ -220,13 +229,15 @@ begin
   fProj.beginUpdate;
   try
     src_prop := src_list.Find(propstr);
-    if src_prop = nil then exit;
+    if src_prop = nil then
+      exit;
     storage.AObject := getGridTarget;
     storage.StoreAnyProperty(src_prop);
     for i:= 0 to fProj.OptionsCollection.Count-1 do
     begin
       // skip current config
-      if i = fProj.ConfigurationIndex then continue;
+      if i = fProj.ConfigurationIndex then
+        continue;
       // find target persistent
       if inspector.TIObject = fProj.currentConfiguration.messagesOptions then
         trg_obj := fProj.configuration[i].messagesOptions else
@@ -273,22 +284,23 @@ var
   nme: string;
   cfg: TCompilerConfiguration;
 begin
-  if fProj.isNil then exit;
-  //
+  if fProj.isNil then
+    exit;
   nme := '';
   beginImperativeUpdate;
   cfg := fProj.addConfiguration;
   // note: Cancel is actually related to the conf. name not to the add operation.
-  if InputQuery('Configuration name', '', nme) then cfg.name := nme;
+  if InputQuery('Configuration name', '', nme) then
+    cfg.name := nme;
   fProj.ConfigurationIndex := cfg.Index;
   endImperativeUpdate;
 end;
 
 procedure TProjectConfigurationWidget.btnDelConfClick(Sender: TObject);
 begin
-  if fProj.isNil then exit;
-  if fProj.OptionsCollection.Count = 1 then exit;
-  //
+  if fProj.isNil or (fProj.OptionsCollection.Count = 1) then
+    exit;
+
   beginImperativeUpdate;
   inspector.TIObject := nil;
   inspector.Clear;
@@ -303,15 +315,16 @@ var
   nme: string;
   trg, src: TCompilerConfiguration;
 begin
-  if fProj.isNil then exit;
-  //
+  if fProj.isNil then
+    exit;
   nme := '';
   beginImperativeUpdate;
   fProj.beginUpdate;
   src := fProj.currentConfiguration;
   trg := fProj.addConfiguration;
   trg.assign(src);
-  if InputQuery('Configuration name', '', nme) then trg.name := nme;
+  if InputQuery('Configuration name', '', nme) then
+    trg.name := nme;
   fProj.ConfigurationIndex := trg.Index;
   fProj.endUpdate;
   endImperativeUpdate;
@@ -321,15 +334,16 @@ procedure TProjectConfigurationWidget.btnSyncEditClick(Sender: TObject);
 begin
   fSynchroValue.Clear;
   fSynchroItem.Clear;
-  if fProj.isNil then exit;
+  if fProj.isNil then
+    exit;
   syncroMode := not syncroMode;
 end;
 
 procedure TProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPropertyEditor;
   var aShow: boolean);
 begin
-  if fProj.isNil then exit;
-
+  if fProj.isNil then
+    exit;
   // filter TComponent things.
   if getGridTarget = fProj then
   begin
@@ -371,9 +385,8 @@ end;
 
 function TProjectConfigurationWidget.getGridTarget: TPersistent;
 begin
-  if fProj.isNil then exit(nil);
-  if fProj.ConfigurationIndex = -1 then exit(nil);
-  if Tree.Selected.isNil then exit(nil);
+  if fProj.isNil or (fProj.ConfigurationIndex = -1) or Tree.Selected.isNil then
+    exit(nil);
   // Warning: TTreeNode.StateIndex is usually made for the images...it's not a tag
   case Tree.Selected.StateIndex of
     1: exit( fProj );
@@ -398,8 +411,9 @@ begin
   selConf.ItemIndex:= -1;
   selConf.Clear;
   selconf.Enabled := (inspector.TIObject <> fProj) and fProj.isNotNil;
-  if fProj.isNil then exit;
-  //
+  if fProj.isNil then
+    exit;
+
   for i:= 0 to fProj.OptionsCollection.Count-1 do
     selConf.Items.Add(fProj.configuration[i].name);
   selConf.ItemIndex := fProj.ConfigurationIndex;

@@ -239,7 +239,8 @@ begin
   fReplaceMru:= TMruList.Create;
 
   fname := getDocPath + OptsFname;
-  if fname.fileExists then with TSearchOptions.create(nil) do
+  if fname.fileExists then
+    with TSearchOptions.create(nil) do
   try
     loadFromFile(fname);
     assignTo(self);
@@ -304,11 +305,16 @@ end;
 function TSearchWidget.getOptions: TSynSearchOptions;
 begin
   result := [];
-  if chkRegex.Checked     then result += [ssoRegExpr];
-  if chkWWord.Checked     then result += [ssoWholeWord];
-  if chkBack.Checked      then result += [ssoBackwards];
-  if chkCaseSens.Checked  then result += [ssoMatchCase];
-  if chkPrompt.Checked    then result += [ssoPrompt];
+  if chkRegex.Checked     then
+    result += [ssoRegExpr];
+  if chkWWord.Checked     then
+    result += [ssoWholeWord];
+  if chkBack.Checked      then
+    result += [ssoBackwards];
+  if chkCaseSens.Checked  then
+    result += [ssoMatchCase];
+  if chkPrompt.Checked    then
+    result += [ssoPrompt];
 end;
 
 function dlgReplaceAll: TModalResult;
@@ -530,12 +536,13 @@ begin
 
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
-  if chkPrompt.Checked then fDoc.OnReplaceText := @replaceEvent;
+  if chkPrompt.Checked then
+    fDoc.OnReplaceText := @replaceEvent;
   fDoc.CaretXY := Point(0,0);
   while(true) do
   begin
-    if fDoc.SearchReplace(fToFind, fReplaceWth, opts) = 0
-      then break;
+    if fDoc.SearchReplace(fToFind, fReplaceWth, opts) = 0 then
+      break;
     if fCancelAll then
     begin
       fCancelAll := false;
@@ -589,13 +596,15 @@ end;
 
 procedure TSearchWidget.docClosing(document: TDexedMemo);
 begin
-  if fDoc = document then fDoc := nil;
+  if fDoc = document then
+    fDoc := nil;
   updateImperative;
 end;
 
 procedure TSearchWidget.docFocused(document: TDexedMemo);
 begin
-  if fDoc = document then exit;
+  if fDoc = document then
+    exit;
   fDoc := document;
   updateImperative;
 end;
@@ -608,7 +617,8 @@ end;
 {$REGION Misc. -----------------------------------------------------------------}
 procedure TSearchWidget.cbToFindChange(Sender: TObject);
 begin
-  if Updating then exit;
+  if Updating then
+    exit;
   fToFind := cbToFind.Text;
   fHasSearched := false;
   updateImperative;
@@ -623,13 +633,15 @@ end;
 
 procedure TSearchWidget.chkEnableRepChange(Sender: TObject);
 begin
-  if Updating then exit;
+  if Updating then
+    exit;
   updateImperative;
 end;
 
 procedure TSearchWidget.cbReplaceWthChange(Sender: TObject);
 begin
-  if Updating then exit;
+  if Updating then
+    exit;
   fReplaceWth := cbReplaceWth.Text;
   fHasSearched := false;
   updateImperative;

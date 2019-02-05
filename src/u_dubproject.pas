@@ -1256,7 +1256,8 @@ begin
   end;
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
-  if fJSON.findObject('buildTypes', obj) then for i := 0 to obj.Count-1 do
+  if fJSON.findObject('buildTypes', obj) then
+    for i := 0 to obj.Count-1 do
   begin
     itemname := obj.Names[i];
     // defaults build types can be overridden
@@ -1335,7 +1336,8 @@ begin
     tryAddFromFolder(fBasePath + 'src');
     tryAddFromFolder(fBasePath + 'source');
     // custom folders
-    if fJSON.findArray('sourcePaths', arr) then for i := 0 to arr.Count-1 do
+    if fJSON.findArray('sourcePaths', arr) then
+      for i := 0 to arr.Count-1 do
     begin
       pth := TrimRightSet(arr.Strings[i], ['/','\']);
       if pth.dirExists and FilenameIsAbsolute(pth) then
@@ -1344,8 +1346,9 @@ begin
         tryAddFromFolder(expandFilenameEx(fBasePath, pth));
     end;
     // custom files
-    if fJSON.findArray('sourceFiles', arr) then for i := 0 to arr.Count-1 do
-      tryAddRelOrAbsFile(arr.Strings[i]);
+    if fJSON.findArray('sourceFiles', arr) then
+      for i := 0 to arr.Count-1 do
+        tryAddRelOrAbsFile(arr.Strings[i]);
     conf := getCurrentCustomConfig;
     if conf.isNotNil then
     begin
@@ -1358,7 +1361,8 @@ begin
           fSrcs.Add(patchPlateformPath(pth));
       end;
       // custom folders in current config
-      if conf.findArray('sourcePaths', arr) then for i := 0 to arr.Count-1 do
+      if conf.findArray('sourcePaths', arr) then
+        for i := 0 to arr.Count-1 do
       begin
         pth := TrimRightSet(arr.Strings[i], ['/','\']);
         if pth.dirExists and FilenameIsAbsolute(pth) then
@@ -1367,8 +1371,9 @@ begin
           tryAddFromFolder(expandFilenameEx(fBasePath, pth));
       end;
       // custom files in current config
-      if conf.findArray('sourceFiles', arr) then for i := 0 to arr.Count-1 do
-        tryAddRelOrAbsFile(arr.Strings[i]);
+      if conf.findArray('sourceFiles', arr) then
+        for i := 0 to arr.Count-1 do
+          tryAddRelOrAbsFile(arr.Strings[i]);
     end;
     // exclusions : not managed anymore because of other IDE features that rely
     // on the full list (scan TODOs, <CPFS>, search in project, etc)
@@ -1467,7 +1472,8 @@ procedure TDubProject.updateImportPathsFromJson;
     pth: string;
     i: integer;
   begin
-    if obj.findArray('importPaths', arr) then for i := 0 to arr.Count-1 do
+    if obj.findArray('importPaths', arr) then
+      for i := 0 to arr.Count-1 do
     begin
       pth := TrimRightSet(arr.Strings[i], ['/','\']);
       if pth.dirExists and FilenameIsAbsolute(pth) then

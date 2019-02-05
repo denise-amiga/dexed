@@ -347,7 +347,8 @@ end;
 
 procedure TDexedPageControl.tabsChanging(Sender: TObject; var AllowChange: Boolean);
 begin
-  if assigned(fOnChanging) then fOnChanging(self, AllowChange);
+  if assigned(fOnChanging) then
+    fOnChanging(self, AllowChange);
 end;
 
 procedure TDexedPageControl.hidePage(index: integer);

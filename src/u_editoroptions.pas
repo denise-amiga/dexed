@@ -363,36 +363,46 @@ end;
 
 procedure TEditorOptionsBase.setDDocDelay(value: Integer);
 begin
-  if value > 2000 then value := 2000
-  else if value < 20 then value := 20;
+  if value > 2000 then
+    value := 2000
+  else if value < 20 then
+    value := 20;
   fDDocDelay:=value;
 end;
 
 procedure TEditorOptionsBase.setDscannerDelay(value: Integer);
 begin
-  if value > 10000 then value := 10000
-  else if value < 500 then value := 500;
+  if value > 10000 then
+    value := 10000
+  else if value < 500 then
+    value := 500;
   fDscannerDelay:=value;
 end;
 
 procedure TEditorOptionsBase.setAutoDotDelay(value: Integer);
 begin
-  if value > 2000 then value := 2000
-  else if value < 0 then value := 0;
+  if value > 2000 then
+    value := 2000
+  else if value < 0 then
+    value := 0;
   fAutoDotDelay:=value;
 end;
 
 procedure TEditorOptionsBase.setCompletionMenuLines(value: byte);
 begin
-  if value < 5 then value := 5
-  else if value > 64 then value := 64;
+  if value < 5 then
+    value := 5
+  else if value > 64 then
+    value := 64;
   fCompletionMenuLines := value;
 end;
 
 procedure TEditorOptionsBase.setLineNumEvery(value: integer);
 begin
-  if value < 1 then value := 1
-  else if value > 10 then value := 10;
+  if value < 1 then
+    value := 1
+  else if value > 10 then
+    value := 10;
   fLineNumEvery := value;
 end;
 
@@ -586,7 +596,7 @@ begin
   if identifier.length > 2 then
     identifier := identifier[3..identifier.length];
   aShortcut := shrct.shortcut;
-  //
+
   fShortcutCount += 1;
   result := fShortcutCount < fShortCuts.Count;
 end;
@@ -596,8 +606,8 @@ var
   i: Integer;
   shc: TPersistentShortcut;
 begin
-  if category <> 'Code editor' then exit;
-  //
+  if category <> 'Code editor' then
+    exit;
   for i:= 0 to fShortCuts.Count-1 do
   begin
     shc := TPersistentShortcut(fShortCuts.Items[i]);

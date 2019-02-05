@@ -184,10 +184,14 @@ var
   dt: PCategoryData;
 begin
   result := true;
-  if fUpdatingCat then exit;
-  if csDestroying in ComponentState then exit;
-  if selCat.Selected.isNil then exit;
-  if selCat.Selected.Data.isNil then exit;
+  if fUpdatingCat then
+    exit;
+  if csDestroying in ComponentState then
+    exit;
+  if selCat.Selected.isNil then
+    exit;
+  if selCat.Selected.Data.isNil then
+    exit;
   // accept/cancel is relative to a single category
   dt := PCategoryData(selCat.Selected.Data);
   // generic editor, changes are tracked directly here
@@ -197,18 +201,20 @@ begin
     begin
       result := dlgYesNo(msg_mod) = mrYes;
       fCatChanged := not result;
-      if result then btnCancelClick(nil);
+      if result then
+        btnCancelClick(nil);
     end;
   // custom editor, changes are notified by optionedOptionsModified()
   end else
   begin
     dt := PCategoryData(selCat.Selected.Data);
-    if dt^.container.isNil then exit;
-    if dt^.observer = nil then exit;
+    if dt^.container.isNil or (dt^.observer = nil) then
+      exit;
     if dt^.observer.optionedOptionsModified() then
     begin
       result := dlgYesNo(msg_mod) = mrYes;
-      if result then btnCancelClick(nil);
+      if result then
+        btnCancelClick(nil);
     end;
   end;
 end;
@@ -230,12 +236,13 @@ begin
     pnlEd.Controls[0].Visible:=false;
     pnlEd.Controls[0].Parent := nil;
   end;
-  //
-  if selCat.Selected.isNil then exit;
-  if selCat.Selected.Data.isNil then exit;
-  //
+
+  if selCat.Selected.isNil or selcat.Selected.Data.isNil then
+    exit;
+
   dt := PCategoryData(selCat.Selected.Data);
-  if dt^.container.isNil then exit;
+  if dt^.container.isNil then
+    exit;
   case dt^.kind of
     oekControl:
       begin
@@ -261,7 +268,7 @@ begin
         inspector.Visible:=true;
       end;
   end;
-  //
+
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeSelectCat);
@@ -269,9 +276,9 @@ end;
 
 procedure TOptionEditorWidget.inspectorModified(Sender: TObject);
 begin
-  if selCat.Selected.isNil then exit;
-  if selcat.Selected.Data.isNil then exit;
-  //
+  if selCat.Selected.isNil or selcat.Selected.Data.isNil then
+    exit;
+
   fCatChanged := true;
   PCategoryData(selCat.Selected.Data)^
     .observer
@@ -280,9 +287,9 @@ end;
 
 procedure TOptionEditorWidget.btnCancelClick(Sender: TObject);
 begin
-  if selCat.Selected.isNil then exit;
-  if selcat.Selected.Data.isNil then exit;
-  //
+  if selCat.Selected.isNil or selcat.Selected.Data.isNil then
+    exit;
+
   fCatChanged := false;
   if inspector.Parent.isNotNil then
     inspector.ItemIndex := -1;
@@ -318,9 +325,9 @@ end;
 
 procedure TOptionEditorWidget.btnAcceptClick(Sender: TObject);
 begin
-  if selCat.Selected.isNil then exit;
-  if selcat.Selected.Data.isNil then exit;
-  //
+  if selCat.Selected.isNil or selcat.Selected.Data.isNil then
+    exit;
+
   fCatChanged := false;
   if inspector.Parent.isNotNil then
     inspector.ItemIndex := -1;

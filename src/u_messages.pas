@@ -499,7 +499,8 @@ begin
       else clearbyContext(amcAll);
     end;
     VK_UP, VK_DOWN:
-      if fOptions.singleMessageClick then handleMessageClick(nil);
+      if fOptions.singleMessageClick then
+        handleMessageClick(nil);
     VK_RETURN:
       handleMessageClick(nil);
   end;
@@ -787,7 +788,6 @@ procedure TMessagesWidget.projClosing(project: ICommonProject);
 begin
   if fProj <> project then
     exit;
-  //
   clearbyData(fProj);
   fProj := nil;
   filterMessages(fCtxt);
@@ -795,7 +795,8 @@ end;
 
 procedure TMessagesWidget.projFocused(project: ICommonProject);
 begin
-  if fProj = project then exit;
+  if fProj = project then
+    exit;
   fProj := project;
   filterMessages(fCtxt);
 end;
@@ -833,7 +834,8 @@ end;
 
 procedure TMessagesWidget.docClosing(document: TDexedMemo);
 begin
-  if document <> fDoc then exit;
+  if document <> fDoc then
+    exit;
   clearbyData(fDoc);
   fEditorMessagePos.Remove(fDoc.fileName);
   fDoc := nil;
@@ -844,8 +846,8 @@ procedure TMessagesWidget.docFocused(document: TDexedMemo);
 var
   i: integer;
 begin
-  if fDoc = document then exit;
-
+  if fDoc = document then
+    exit;
   if fDoc.isNotNil and fOptions.fAutoSelect and (fCtxt = amcEdit) then
   begin
     if list.Selected.isNotNil then
@@ -922,7 +924,7 @@ begin
   dt := new(PMessageData);
   dt^.data := aData;
   dt^.ctxt := aCtxt;
-  if fAutoSelect then if fCtxt <> aCtxt then
+  if fAutoSelect and (fCtxt <> aCtxt) then
     fBtns[aCtxt].Click;
   if fastDisplay then
     IncLoopUpdate;

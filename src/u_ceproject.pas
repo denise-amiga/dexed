@@ -237,9 +237,12 @@ begin
   expand := fBasePath.dirExists;
   for relSrc in fSrcs do
   begin
-    if not expand then absSrc := relSrc
-    else absSrc := expandFilenameEx(fBasePath, relsrc);
-    if SameFileName(fname, absSrc) then exit;
+    if not expand then
+      absSrc := relSrc
+    else
+      absSrc := expandFilenameEx(fBasePath, relsrc);
+    if SameFileName(fname, absSrc) then
+      exit;
   end;
   relSrc := ExtractRelativePath(fBasePath, fname);
   fSrcs.Add(relSrc);
@@ -247,7 +250,8 @@ end;
 
 procedure TNativeProject.setRoot(const value: string);
 begin
-  if fRootFolder = value then exit;
+  if fRootFolder = value then
+    exit;
   beginUpdate;
   fRootFolder := value;
   endUpdate;
@@ -457,7 +461,8 @@ var
   rel: string;
   lst: TStringList;
 begin
-  if fConfIx = -1 then exit;
+  if fConfIx = -1 then
+    exit;
   exc := TStringList.Create;
   try
     cfg := currentConfiguration;
@@ -471,7 +476,8 @@ begin
     for rel in fSrcs do if rel <> '' then
       opts.Add(expandFilenameEx(fBasePath, rel)); // note: process.inc ln 249. double quotes are added if there's a space.
     // exclusions
-    if exc.Count > 0 then with TRegExpr.Create do
+    if exc.Count > 0 then
+      with TRegExpr.Create do
     try
       for str in exc do
       begin
@@ -574,15 +580,18 @@ var
     src: string;
     i: Integer;
   begin
-    if fSrcs.Count = 0 then exit;
+    if fSrcs.Count = 0 then
+      exit;
     allMissing := true;
     for i:= 0 to fSrcs.Count-1 do
       if sourceAbsolute(i).fileExists then
         allMissing := false;
-    if not allMissing then exit;
+    if not allMissing then
+      exit;
     if dlgYesNo( 'The project source(s) are all missing. ' + LineEnding +
       'This can be encountered if the project file has been moved from its original location.' + LineEnding + LineEnding +
-      'Do you wish to select the new root folder ?') <> mrYes then exit;
+      'Do you wish to select the new root folder ?') <> mrYes then
+        exit;
     // TODO-cimprovement: use commonFolder() when it'll be compat. with the rel. paths.
     // hint for the common dir
     dirHint := fSrcs[i];
@@ -611,12 +620,14 @@ var
     for i:= fSrcs.Count-1 downto 0 do
     begin
       oldsrc := sourceAbsolute(i);
-      if oldsrc.fileExists then continue;
+      if oldsrc.fileExists then
+        continue;
       if dlgYesNo(format('a particular project source file ("%s") is missing. '
         + LineEnding + 'This happends if a source file has been moved, renamed ' +
         'or deleted.' + LineEnding + LineEnding +
-        'Do you wish to select its new location?', [fSrcs[i]])) <> mrYes then exit;
-      //
+        'Do you wish to select its new location?', [fSrcs[i]])) <> mrYes then
+          exit;
+
       opendlg := TOpenDialog.Create(nil);
       try
         opendlg.InitialDir := fFilename.extractFilePath;
@@ -723,11 +734,15 @@ begin
     ext := fOutputFilename.extractFileExt;
     case currentConfiguration.outputOptions.binaryKind of
       {$IFDEF WINDOWS}
-      executable: if ext <> exeExt then fOutputFilename += exeExt;
+      executable: if ext <> exeExt then
+        fOutputFilename += exeExt;
       {$ENDIF}
-      staticlib:  if ext <> libExt then fOutputFilename += libExt;
-      sharedlib:  if ext <> dynExt then fOutputFilename += dynExt;
-      obj:        if ext <> dynExt then fOutputFilename += objExt;
+      staticlib:  if ext <> libExt then
+        fOutputFilename += libExt;
+      sharedlib:  if ext <> dynExt then
+        fOutputFilename += dynExt;
+      obj:        if ext <> dynExt then
+        fOutputFilename += objExt;
     end;
   end;
   //
@@ -984,10 +999,12 @@ var
   i: integer;
 begin
   result := false;
-  if not fOutputFilename.fileExists then exit;
+  if not fOutputFilename.fileExists then
+    exit;
   dt := FileAge(fOutputFilename);
   for i := 0 to fSrcs.Count-1 do
-    if fileAge(sourceAbsolute(i)) > dt then exit;
+    if fileAge(sourceAbsolute(i)) > dt then
+      exit;
   result := true;
 end;
 
@@ -1013,8 +1030,10 @@ end;
 
 function TNativeProject.configurationName(index: integer): string;
 begin
-  if index > fConfigs.Count -1 then index := fConfigs.Count -1;
-  if index < 0 then index := 0;
+  if index > fConfigs.Count -1 then
+    index := fConfigs.Count -1;
+  if index < 0 then
+    index := 0;
   result := getConfig(index).name;
 end;
 

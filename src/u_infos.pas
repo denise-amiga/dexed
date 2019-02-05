@@ -120,8 +120,9 @@ var
   pth: string;
   cmp: DCompiler;
 begin
-  if fLabel.isNil or fStatus.isNil then exit;
-  //
+  if fLabel.isNil or fStatus.isNil then
+    exit;
+
   fPresent := false;
   fLabel.Caption:= fToolName;
   case fKind of

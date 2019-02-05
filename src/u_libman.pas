@@ -625,7 +625,8 @@ begin
       end;
     end;
     // add the library files and the import paths for the selection
-    if not sel.IsEmpty then with sel.Iterator do
+    if not sel.IsEmpty then
+      with sel.Iterator do
     begin
       while true do
       begin

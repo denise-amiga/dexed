@@ -393,7 +393,8 @@ end;
 
 procedure TOptsGroup.doChanged;
 begin
-  if assigned(fOnChange) then fOnChange(self);
+  if assigned(fOnChange) then
+    fOnChange(self);
 end;
 
 {$REGION TDocOpts --------------------------------------------------------------}
@@ -440,7 +441,6 @@ begin
   if (source is TDocOpts) then
   begin
     src       := TDocOpts(source);
-    //
     fGenDoc   := src.fGenDoc;
     fGenJson  := src.fGenJson;
     fDocDir   := patchPlateformPath(src.fDocDir);
@@ -456,7 +456,6 @@ begin
     fGenDoc := true;
     exit;
   end;
-  //
   if fGenDoc = value then
     exit;
   fGenDoc := value;
@@ -470,7 +469,6 @@ begin
     fGenJson := true;
     exit;
   end;
-  //
   if fGenJson = value then
     exit;
   fGenJson := value;
@@ -516,27 +514,45 @@ begin
   if base.isNil then
   begin
     dep := DepStr[fDepHandling];
-    if dep.isNotEmpty then list.Add(dep);
-    if fVerbose then list.Add('-v');
-    if fWarnings then list.Add('-w');
-    if fWarnInfo then list.Add('-wi');
-    if fVtls then list.Add('-vtls');
-    if fQuiet then list.Add('-quiet');
-    if fVgc then list.Add('-vgc');
-    if fCol then list.Add('-vcolumns');
+    if dep.isNotEmpty then
+      list.Add(dep);
+    if fVerbose then
+      list.Add('-v');
+    if fWarnings then
+      list.Add('-w');
+    if fWarnInfo then
+      list.Add('-wi');
+    if fVtls then
+      list.Add('-vtls');
+    if fQuiet then
+      list.Add('-quiet');
+    if fVgc then
+      list.Add('-vgc');
+    if fCol then
+      list.Add('-vcolumns');
   end else
   begin
     baseopt := TMsgOpts(base);
     dep := DepStr[fDepHandling];
     depbase := DepStr[baseopt.fDepHandling];
-    if dep <> depbase then list.Add(dep) else list.Add(depbase);
-    if baseopt.fVerbose or fVerbose then list.Add('-v');
-    if baseopt.fWarnings or fWarnings then list.Add('-w');
-    if baseopt.fWarnInfo or fWarnInfo then list.Add('-wi');
-    if baseopt.fVtls or fVtls then list.Add('-vtls');
-    if baseopt.fQuiet or fQuiet then list.Add('-quiet');
-    if baseopt.fVgc or fVgc then list.Add('-vgc');
-    if baseopt.fCol or fCol then list.Add('-vcolumns');
+    if dep <> depbase then
+      list.Add(dep)
+    else
+      list.Add(depbase);
+    if baseopt.fVerbose or fVerbose then
+      list.Add('-v');
+    if baseopt.fWarnings or fWarnings then
+      list.Add('-w');
+    if baseopt.fWarnInfo or fWarnInfo then
+      list.Add('-wi');
+    if baseopt.fVtls or fVtls then
+      list.Add('-vtls');
+    if baseopt.fQuiet or fQuiet then
+      list.Add('-quiet');
+    if baseopt.fVgc or fVgc then
+      list.Add('-vgc');
+    if baseopt.fCol or fCol then
+      list.Add('-vcolumns');
   end;
 end;
 
@@ -562,56 +578,64 @@ end;
 
 procedure TMsgOpts.setDepHandling(const value: TDepHandling);
 begin
-  if fDepHandling = value then exit;
+  if fDepHandling = value then
+    exit;
   fDepHandling := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setVerbose(const value: boolean);
 begin
-  if fVerbose = value then exit;
+  if fVerbose = value then
+    exit;
   fVerbose := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setWarnings(const value: boolean);
 begin
-  if fWarnings = value then exit;
+  if fWarnings = value then
+    exit;
   fWarnings := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setWarnInfo(const value: boolean);
 begin
-  if fWarnInfo = value then exit;
+  if fWarnInfo = value then
+    exit;
   fWarnInfo := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setVtls(const value: boolean);
 begin
-  if fVtls = value then exit;
+  if fVtls = value then
+    exit;
   fVtls := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setQuiet(const value: boolean);
 begin
-  if fQuiet = value then exit;
+  if fQuiet = value then
+    exit;
   fQuiet := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setVgc(const value: boolean);
 begin
-  if fVgc = value then exit;
+  if fVgc = value then
+    exit;
   fVgc := value;
   doChanged;
 end;
 
 procedure TMsgOpts.setCol(const value: boolean);
 begin
-  if fCol = value then exit;
+  if fCol = value then
+    exit;
   fCol := value;
   doChanged;
 end;
@@ -643,23 +667,32 @@ begin
   if base.isNil then
   begin
     str := binKindStr[fBinKind];
-    if str.isNotEmpty then list.Add(str);
+    if str.isNotEmpty then
+      list.Add(str);
     {$IFNDEF WINDOWS}
     if fBinKind = sharedlib then
       list.Add('-fPIC');
     {$ENDIF}
     str := trgKindStr[fTrgKind];
-    if str.isNotEmpty then list.Add(str);
-    if fUnittest then list.Add('-unittest');
-    if fInline then list.Add('-inline');
-    if fOptimz then list.Add('-O');
-    if fStackStomp then list.Add('-gx');
-    if fAllInst then list.Add('-allinst');
-    if fAddMain then list.Add('-main');
-    if fRelease then list.Add('-release');
+    if str.isNotEmpty then
+      list.Add(str);
+    if fUnittest then
+      list.Add('-unittest');
+    if fInline then
+      list.Add('-inline');
+    if fOptimz then
+      list.Add('-O');
+    if fStackStomp then
+      list.Add('-gx');
+    if fAllInst then
+      list.Add('-allinst');
+    if fAddMain then
+      list.Add('-main');
+    if fRelease then
+      list.Add('-release');
     for str in fVerIds do
-      if not isStringDisabled(str) then list.Add('-version=' + str);
-    //
+      if not isStringDisabled(str) then
+        list.Add('-version=' + str);
     if fRelease then
       begin
         if fBoundsCheck <> safeOnly then
@@ -691,18 +724,32 @@ begin
     end;
     str := trgKindStr[fTrgKind];
     strbase := trgKindStr[baseopt.fTrgKind];
-    if (str <> strbase) then list.Add(str) else list.Add(strbase);
-    if baseopt.fUnittest or fUnittest then list.Add('-unittest');
-    if baseopt.fInline or fInline then list.Add('-inline');
-    if baseopt.fOptimz or fOptimz then list.Add('-O');
-    if baseopt.fStackStomp or fStackStomp then list.Add('-gx');
-    if baseopt.fAllInst or fAllInst then list.Add('-allinst');
-    if baseopt.fAddMain or fAddMain then list.Add('-main');
-    if baseopt.fRelease or fRelease then list.Add('-release');
-    if (fVerIds.Count = 0) then for str in baseopt.fVerIds do begin
-      if not isStringDisabled(str) then list.Add('-version=' + str);
+    if (str <> strbase) then
+      list.Add(str)
+    else
+      list.Add(strbase);
+    if baseopt.fUnittest or fUnittest then
+      list.Add('-unittest');
+    if baseopt.fInline or fInline then
+      list.Add('-inline');
+    if baseopt.fOptimz or fOptimz then
+      list.Add('-O');
+    if baseopt.fStackStomp or fStackStomp then
+      list.Add('-gx');
+    if baseopt.fAllInst or fAllInst then
+      list.Add('-allinst');
+    if baseopt.fAddMain or fAddMain then
+      list.Add('-main');
+    if baseopt.fRelease or fRelease then
+      list.Add('-release');
+    if (fVerIds.Count = 0) then
+      for str in baseopt.fVerIds do
+    begin
+      if not isStringDisabled(str) then
+        list.Add('-version=' + str);
     end else for str in fVerIds do
-      if not isStringDisabled(str) then list.Add('-version=' + str);
+      if not isStringDisabled(str) then
+        list.Add('-version=' + str);
     // default values are not handled here, TODO
     if fBoundsCheck <> baseopt.fBoundsCheck then
       list.Add('-boundscheck=' + bchKindStr[fBoundsCheck] )
@@ -718,7 +765,6 @@ begin
   if (source is TOutputOpts) then
   begin
     src := TOutputOpts(source);
-    //
     fVerIds.Assign(src.fVerIds);
     fBinKind    := src.fBinKind;
     fTrgKind    := src.fTrgKind;
@@ -738,21 +784,24 @@ end;
 
 procedure TOutputOpts.setUnittest(const value: boolean);
 begin
-  if fUnittest = value then exit;
+  if fUnittest = value then
+    exit;
   fUnittest := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setAllInst(const value: boolean);
 begin
-  if fAllinst = value then exit;
+  if fAllinst = value then
+    exit;
   fAllinst := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setAlwaysLinkLibs(const value: boolean);
 begin
-  if fAlwayLinkLibs = value then exit;
+  if fAlwayLinkLibs = value then
+    exit;
   fAlwayLinkLibs := value;
   doChanged;
 end;
@@ -765,63 +814,72 @@ end;
 
 procedure TOutputOpts.setTrgKind(const value: TTargetSystem);
 begin
-  if fTrgKind = value then exit;
+  if fTrgKind = value then
+    exit;
   fTrgKind := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setBinKind(const value: TProjectBinaryKind);
 begin
-  if fBinKind = value then exit;
+  if fBinKind = value then
+    exit;
   fBinKind := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setInline(const value: boolean);
 begin
-  if fInline = value then exit;
+  if fInline = value then
+    exit;
   fInline := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setBoundsCheck(const value: TBoundCheckKind);
 begin
-  if fBoundsCheck = value then exit;
+  if fBoundsCheck = value then
+    exit;
   fBoundsCheck := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setOptims(const value: boolean);
 begin
-  if fOptimz = value then exit;
+  if fOptimz = value then
+    exit;
   fOptimz := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setGenStack(const value: boolean);
 begin
-  if fGenStack = value then exit;
+  if fGenStack = value then
+    exit;
   fGenStack := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setAddMain(const value: boolean);
 begin
-  if fAddMain = value then exit;
+  if fAddMain = value then
+    exit;
   fAddMain := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setRelease(const value: boolean);
 begin
-  if fRelease = value then exit;
+  if fRelease = value then
+    exit;
   fRelease := value;
   doChanged;
 end;
 
 procedure TOutputOpts.setStackStomp(const value: boolean);
 begin
-  if fStackStomp = value then exit;
+  if fStackStomp = value then
+    exit;
   fStackStomp := value;
   doChanged;
 end;
@@ -847,30 +905,42 @@ var
 begin
   if base.isNil then
   begin
-    if fDebugConditions then list.Add('-debug');
+    if fDebugConditions then
+      list.Add('-debug');
     if fDbgLevel <> 0 then
       list.Add('-debug=' + intToStr(fDbgLevel));
     for idt in fDbgIdents do
       list.Add('-debug=' + idt);
-    if fGenInfos then list.Add('-g');
-    if fDbgC then list.Add('-gc');
-    if fGenMap then list.Add('-map');
-    if fGenFrame and (list.IndexOf('-gs') = -1) then list.Add('-gs');
+    if fGenInfos then
+      list.Add('-g');
+    if fDbgC then
+      list.Add('-gc');
+    if fGenMap then
+      list.Add('-map');
+    if fGenFrame and (list.IndexOf('-gs') = -1) then
+      list.Add('-gs');
   end else
   begin
     baseopt := TDebugOpts(base);
-    if baseopt.fDebugConditions or fDebugConditions then list.Add('-debug');
+    if baseopt.fDebugConditions or fDebugConditions then
+      list.Add('-debug');
     if (baseopt.fDbgLevel <> 0) and (fDbgLevel = 0) then
       list.Add('-debug=' + intToStr(baseopt.fDbgLevel))
     else if fDbgLevel <> 0 then
       list.Add('-debug=' + intToStr(fDbgLevel));
     if fDbgIdents.Count = 0 then
-      for idt in baseopt.fDbgIdents do list.Add('-debug=' + idt)
-    else for idt in fDbgIdents do list.Add('-debug=' + idt);
-    if baseopt.fGenInfos or fGenInfos then list.Add('-g');
-    if baseopt.fDbgC or fDbgC then list.Add('-gc');
-    if baseopt.fGenMap or fGenMap then list.Add('-map');
-    if (baseopt.fGenFrame or fGenFrame) and (list.IndexOf('-gs') = -1) then list.Add('-gs');
+      for idt in baseopt.fDbgIdents do
+        list.Add('-debug=' + idt)
+    else for idt in fDbgIdents do
+      list.Add('-debug=' + idt);
+    if baseopt.fGenInfos or fGenInfos then
+      list.Add('-g');
+    if baseopt.fDbgC or fDbgC then
+      list.Add('-gc');
+    if baseopt.fGenMap or fGenMap then
+      list.Add('-map');
+    if (baseopt.fGenFrame or fGenFrame) and (list.IndexOf('-gs') = -1) then
+      list.Add('-gs');
   end;
 end;
 
@@ -881,7 +951,6 @@ begin
   if (source is TDebugOpts) then
   begin
     src := TDebugOpts(source);
-    //
     fDbgIdents.Assign(src.fDbgIdents);
     fDebugConditions    := src.fDebugConditions;
     fDbgLevel := src.fDbgLevel;
@@ -896,7 +965,8 @@ end;
 procedure TDebugOpts.updateForceDbgBool;
 begin
   fForceDbgBool := (fDbgLevel > 0) or (fDbgIdents.Count > 0);
-  if fForceDbgBool then setDebugConditions(true);
+  if fForceDbgBool then
+    setDebugConditions(true);
 end;
 
 procedure TDebugOpts.setDebugConditions(const value: boolean);
@@ -906,44 +976,51 @@ begin
     fDebugConditions := true;
     exit;
   end;
-  if fDebugConditions = value then exit;
+  if fDebugConditions = value then
+    exit;
   fDebugConditions := value;
   doChanged;
 end;
 
 procedure TDebugOpts.setGenFrame(const value: boolean);
 begin
-  if fGenFrame = value then exit;
+  if fGenFrame = value then
+    exit;
   fGenFrame:=value;
   doChanged;
 end;
 
 procedure TDebugOpts.setGenInfos(const value: boolean);
 begin
-  if fGenInfos = value then exit;
+  if fGenInfos = value then
+    exit;
   fGenInfos := value;
   doChanged;
 end;
 
 procedure TDebugOpts.setDbgC(const value: boolean);
 begin
-  if fDbgC = value then exit;
+  if fDbgC = value then
+    exit;
   fDbgC := value;
   doChanged;
 end;
 
 procedure TDebugOpts.setGenMap(const value: boolean);
 begin
-  if fGenMap = value then exit;
+  if fGenMap = value then
+    exit;
   fGenMap := value;
   doChanged;
 end;
 
 procedure TDebugOpts.setDbgLevel(const value: Integer);
 begin
-  if fDbgLevel = value then exit;
+  if fDbgLevel = value then
+    exit;
   fDbgLevel := value;
-  if fDbgLevel < 0 then fDbgLevel := 0;
+  if fDbgLevel < 0 then
+    fDbgLevel := 0;
   updateForceDbgBool;
   doChanged;
 end;
@@ -1036,8 +1113,10 @@ begin
   end else
   begin
     baseopt := TPathsOpts(base);
-    if fExtraSrcs.Count = 0 then rightList := baseopt.fExtraSrcs
-    else rightList := fExtraSrcs;
+    if fExtraSrcs.Count = 0 then
+      rightList := baseopt.fExtraSrcs
+    else
+      rightList := fExtraSrcs;
     exts := TStringList.Create;
     try
       exts.AddStrings(['.d', '.di', '.dd']);
@@ -1053,25 +1132,37 @@ begin
       exts.Free;
     end;
     //
-    if fImpMod.Count = 0 then rightList := baseopt.fImpMod
-    else rightList := fImpMod;
-    for str in rightList do if not isStringDisabled(str) then
-      list.Add('-I'+ fSymStringExpander.expand(str));
+    if fImpMod.Count = 0 then
+      rightList := baseopt.fImpMod
+    else
+        rightList := fImpMod;
+    for str in rightList do
+      if not isStringDisabled(str) then
+        list.Add('-I'+ fSymStringExpander.expand(str));
     //
-    if fImpStr.Count = 0 then rightList := baseopt.fImpStr
-    else rightList := fImpStr;
-    for str in rightList do if not isStringDisabled(str) then
-      list.Add('-J'+ fSymStringExpander.expand(str));
+    if fImpStr.Count = 0 then
+      rightList := baseopt.fImpStr
+    else
+      rightList := fImpStr;
+    for str in rightList do
+      if not isStringDisabled(str) then
+        list.Add('-J'+ fSymStringExpander.expand(str));
     //
     str := '';
-    if fFname <> '' then str := fFname else
-      if baseopt.fFname <> '' then str := baseopt.fFname;
-    if str.isNotEmpty then list.Add('-of' + fSymStringExpander.expand(str));
+    if fFname <> '' then
+      str := fFname
+    else if baseopt.fFname <> '' then
+      str := baseopt.fFname;
+    if str.isNotEmpty then
+      list.Add('-of' + fSymStringExpander.expand(str));
     //
     str := '';
-    if fObjDir <> '' then str := fObjDir else
-      if baseopt.fObjDir <> '' then str := baseopt.fObjDir;
-    if str.isNotEmpty then list.Add('-od' + fSymStringExpander.expand(str));
+    if fObjDir <> '' then
+      str := fObjDir
+    else if baseopt.fObjDir <> '' then
+        str := baseopt.fObjDir;
+    if str.isNotEmpty then
+      list.Add('-od' + fSymStringExpander.expand(str));
   end;
 end;
 
@@ -1082,7 +1173,7 @@ begin
   if (source is TPathsOpts) then
   begin
     src := TPathsOpts(source);
-    //
+
     fExtraSrcs.Assign(src.fExtraSrcs);
     fImpMod.Assign(src.fImpMod);
     fImpStr.Assign(src.fImpStr);
@@ -1105,14 +1196,16 @@ end;
 
 procedure TPathsOpts.setForceExt(value: boolean);
 begin
-  if fForceExt = value then exit;
+  if fForceExt = value then
+    exit;
   fForceExt:=value;
   doChanged;
 end;
 
 procedure TPathsOpts.setFname(const value: TFilename);
 begin
-  if fFname = value then exit;
+  if fFname = value then
+    exit;
   fFname := patchPlateformPath(value);
   fFname := patchPlateformExt(fFname);
   doChanged;
@@ -1120,7 +1213,8 @@ end;
 
 procedure TPathsOpts.setObjDir(const value: TPathname);
 begin
-  if fObjDir = value then exit;
+  if fObjDir = value then
+    exit;
   fObjDir := patchPlateformPath(value);
   doChanged;
 end;
@@ -1266,7 +1360,8 @@ begin
       ldc, ldmd: lst := fLdcOthers;
       gdc, gdmd: lst := fGdcOthers;
     end;
-    if lst.isNotNil then for i := 0 to lst.Count-1 do
+    if lst.isNotNil then
+      for i := 0 to lst.Count-1 do
     begin
       str := lst[i];
       if str.isEmpty or isStringDisabled(str) then
@@ -1295,7 +1390,8 @@ begin
         else
           lst := fGdcOthers;
     end;
-    if lst.isNotNil then for i := 0 to lst.Count-1 do
+    if lst.isNotNil then
+      for i := 0 to lst.Count-1 do
     begin
       str := lst[i];
       if str.isEmpty or isStringDisabled(str) then
@@ -1402,21 +1498,24 @@ end;
 
 procedure TCustomProcOptions.setExecutable(const value: TFilename);
 begin
-  if fExecutable = value then exit;
+  if fExecutable = value then
+    exit;
   fExecutable := value;
   doChanged;
 end;
 
 procedure TCustomProcOptions.setWorkDir(const value: TPathname);
 begin
-  if fWorkDir = value then exit;
+  if fWorkDir = value then
+    exit;
   fWorkDir := value;
   doChanged;
 end;
 
 procedure TCustomProcOptions.setOptions(const value: TProcessOptions);
 begin
-  if fOptions = value then exit;
+  if fOptions = value then
+    exit;
   fOptions := value;
   doChanged;
 end;
@@ -1435,7 +1534,8 @@ end;
 
 procedure TCustomProcOptions.setShowWin(value: TShowWindowOptions);
 begin
-  if fShowWin = value then exit;
+  if fShowWin = value then
+    exit;
   fShowWin := value;
   doChanged;
 end;
@@ -1549,18 +1649,19 @@ begin
     ext := nme.extractFileExt;
     nme := '-of' + nme;
     i := list.IndexOf(nme);
-    if i <> -1 then case fOutputOpts.binaryKind of
-      {$IFDEF WINDOWS}
-      executable: if ext <> exeExt then
-        list[i] := list[i] + exeExt;
-      {$ENDIF}
-      obj: if ext <> objExt then
-        list[i] := list[i] + objExt;
-      sharedlib: if ext <> dynExt then
-        list[i] := list[i] + dynExt;
-      staticlib: if ext <> libExt then
-        list[i] := list[i] + libExt;
-    end;
+    if i <> -1 then
+      case fOutputOpts.binaryKind of
+        {$IFDEF WINDOWS}
+        executable: if ext <> exeExt then
+          list[i] := list[i] + exeExt;
+        {$ENDIF}
+        obj: if ext <> objExt then
+          list[i] := list[i] + objExt;
+        sharedlib: if ext <> dynExt then
+          list[i] := list[i] + dynExt;
+        staticlib: if ext <> libExt then
+          list[i] := list[i] + libExt;
+      end;
   end;
 end;
 
@@ -1581,7 +1682,8 @@ end;
 
 procedure TCompilerConfiguration.doChanged;
 begin
-  if assigned(fOnChanged) then fOnChanged(self);
+  if assigned(fOnChanged) then
+    fOnChanged(self);
 end;
 
 procedure TCompilerConfiguration.setDocOpts(const value: TDocOpts);

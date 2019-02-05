@@ -455,11 +455,16 @@ var
   prt: TJSONData;
   sel: TTreeNode;
 begin
-  if fSelectedNode.isNil then exit;
-  if fSelectedNode.Level = 0 then exit;
-  if fSelectedNode.Text = 'name' then exit;
-  if fSelectedNode.Data.isNil then exit;
-  if fSelectedNode.Parent.Data.isNil then exit;
+  if fSelectedNode.isNil then
+    exit;
+  if fSelectedNode.Level = 0 then
+    exit;
+  if fSelectedNode.Text = 'name' then
+    exit;
+  if fSelectedNode.Data.isNil then
+    exit;
+  if fSelectedNode.Parent.Data.isNil then
+    exit;
 
   fProj.beginModification;
   prt := TJSONData(fSelectedNode.Parent.Data);
@@ -588,8 +593,8 @@ var
   dat: TJSONData;
 begin
   edProp.Clear;
-  if fSelectedNode.isNil then exit;
-  if fSelectedNode.Data.isNil then exit;
+  if fSelectedNode.isNil or fSelectedNode.Data.isNil then
+    exit;
 
   dat := TJSONData(fSelectedNode.Data);
   case dat.JSONType of
@@ -617,7 +622,8 @@ procedure TDubProjectEditorWidget.updateEditor;
     c: TTreeNode;
   begin
     node.Data:= data;
-    if data.JSONType = jtObject then for i := 0 to data.Count-1 do
+    if data.JSONType = jtObject then
+      for i := 0 to data.Count-1 do
     begin
       node.ImageIndex:=0;
       node.SelectedIndex:=0;
@@ -633,7 +639,8 @@ procedure TDubProjectEditorWidget.updateEditor;
           c.StateIndex:=2;
         end;
       end;
-    end else if data.JSONType = jtArray then for i := 0 to data.Count-1 do
+    end else if data.JSONType = jtArray then
+      for i := 0 to data.Count-1 do
     begin
       node.ImageIndex:=1;
       node.SelectedIndex:=1;

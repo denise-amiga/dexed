@@ -151,7 +151,8 @@ end;
 
 procedure TLibManEditorWidget.projChanged(project: ICommonProject);
 begin
-  if fProj = nil then exit;
+  if fProj = nil then
+    exit;
   if fProj <> project then
     exit;
 

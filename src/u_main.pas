@@ -1325,7 +1325,8 @@ begin
         lst.DelimitedText := value;
         for value in lst do
         begin
-          if value.isEmpty then continue;
+          if value.isEmpty then
+            continue;
           if isEditable(value.extractFileExt) then
             openFile(value)
           else if isValidNativeProject(value) or isValidDubProject(value) then
@@ -1802,7 +1803,8 @@ var
 begin
   // project and files MRU
   fname := getDocPath + 'mostrecent.txt';
-  if fname.fileExists then with TPersistentMainMrus.create(nil) do
+  if fname.fileExists then
+    with TPersistentMainMrus.create(nil) do
   try
     setTargets(fFileMru, fProjMru, fPrjGrpMru);
     loadFromFile(fname);
@@ -1811,7 +1813,8 @@ begin
   end;
   // shortcuts for the actions standing in the main action list
   fname := getDocPath + 'mainshortcuts.txt';
-  if fname.fileExists then with TPersistentMainShortcuts.create(nil) do
+  if fname.fileExists then
+    with TPersistentMainShortcuts.create(nil) do
   try
     loadFromFile(fname);
     assignTo(self);
@@ -1870,11 +1873,13 @@ begin
     exit;
 
   DockMaster.RestoreLayouts.Clear;
-  if WindowState = wsMinimized then WindowState := wsNormal;
+  if WindowState = wsMinimized then
+    WindowState := wsNormal;
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
-    if not fWidgList.widget[i].isDockable then continue;
+    if not fWidgList.widget[i].isDockable then
+      continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
     else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
@@ -2348,7 +2353,8 @@ begin
   if trgMnu.isNil then
     exit;
 
-  if fUpdateCount > 0 then exit;
+  if fUpdateCount > 0 then
+    exit;
   Inc(fUpdateCount);
   try
     if srcLst = fFileMru then
@@ -2951,8 +2957,9 @@ begin
   lst := TStringList.Create;
   try
     proc.getFullLines(lst);
-    if proc = fRunProc then for str in lst do
-      fMsgs.message(str, fDoc, amcEdit, amkBub)
+    if proc = fRunProc then
+      for str in lst do
+        fMsgs.message(str, fDoc, amcEdit, amkBub)
     else // dmd used to compile runnable
       for str in lst do
         fMsgs.message(str, fDoc, amcEdit, amkAuto);
@@ -3557,8 +3564,8 @@ begin
     dlgOkInfo('Non executable projects cant be run')
   else
   begin
-    if (not fProject.targetUpToDate) then if
-      dlgYesNo('The project output is not up-to-date, rebuild ?') = mrYes then
+    if not fProject.targetUpToDate and
+      (dlgYesNo('The project output is not up-to-date, rebuild ?') = mrYes) then
       begin
         if fAppliOpts.autoSaveProjectFiles then
           saveModifiedProjectFiles(fProject);
@@ -3718,7 +3725,7 @@ begin
     TForm(widg.Parent).FormStyle := fstyle[onTop];
     //TODO-cbugfix: floating widg on top from true to false, widg remains on top
     // OK on linux (LCL 1.6.0), initially observed on win & LCL 1.4.2
-    if TForm(widg.Parent).Visible then if not onTop then
+    if TForm(widg.Parent).Visible and not onTop then
       TForm(widg.Parent).SendToBack;
   end;
 end;
@@ -3979,10 +3986,11 @@ procedure TMainForm.actProjEditorExecute(Sender: TObject);
 var
   win: TControl = nil;
 begin
-  if assigned(fProject) then case fProject.getFormat of
-    pfDUB: win := DockMaster.GetAnchorSite(fDubProjWidg);
-    pfDEXED: win := DockMaster.GetAnchorSite(fPrjCfWidg);
-  end
+  if assigned(fProject) then
+    case fProject.getFormat of
+      pfDUB: win := DockMaster.GetAnchorSite(fDubProjWidg);
+      pfDEXED: win := DockMaster.GetAnchorSite(fPrjCfWidg);
+    end
   else win := DockMaster.GetAnchorSite(fPrjCfWidg);
   if win.isNotNil then
   begin

@@ -518,7 +518,8 @@ begin
   if fDoc.isNotNil and pageControl.currentPage.isNotNil and
     (pageControl.currentPage.Caption = '<new document>') then
       updatePageCaption(pageControl.currentPage);
-  if document = fDoc then exit;
+  if document = fDoc then
+    exit;
   fDoc := document;
   fDoc.Visible:=true;
   focusedEditorChanged;
@@ -668,8 +669,8 @@ end;
 
 procedure TEditorWidget.focusedEditorChanged;
 begin
-  if fDoc.isNil then exit;
-  //
+  if fDoc.isNil then
+    exit;
   macRecorder.Editor:= fDoc;
   fDoc.PopupMenu := mnuEditor;
   fDoc.hideCallTips;
@@ -684,14 +685,16 @@ end;
 
 procedure TEditorWidget.PageControlChanged(Sender: TObject);
 begin
-  if fDoc.isNil then exit;
+  if fDoc.isNil then
+    exit;
   fDoc.hideCallTips;
   fDoc.hideDDocs;
 end;
 
 procedure TEditorWidget.PageControlChanging(Sender: TObject; var AllowChange: Boolean);
 begin
-  if fDoc.isNil then exit;
+  if fDoc.isNil then
+    exit;
   fDoc.hideCallTips;
   fDoc.hideDDocs;
 end;
@@ -754,7 +757,8 @@ end;
 
 procedure TEditorWidget.memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
-  if not (ssLeft in Shift) then exit;
+  if not (ssLeft in Shift) then
+    exit;
   beginDelayedUpdate;
 end;
 
@@ -770,8 +774,9 @@ var
   fname: string;
   len: byte;
 begin
-  if not DcdWrapper.available then exit;
-  //
+  if not DcdWrapper.available then
+    exit;
+
   DcdWrapper.getDeclFromCursor(fname, srcpos);
   if (fname <> fDoc.fileName) and fname.fileExists then
   begin
@@ -1143,7 +1148,8 @@ end;
 
 procedure TEditorWidget.mnuedDdocClick(Sender: TObject);
 begin
-  if fDoc.isNil then exit;
+  if fDoc.isNil then
+    exit;
   mnuEditor.Close;
   fDoc.hideCallTips;
   if not fDoc.IsDSource and not fDoc.alwaysAdvancedFeatures then

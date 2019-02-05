@@ -431,8 +431,10 @@ begin
   ctxt := getContext;
   case ctxt of
     tcNone: exit;
-    tcProject: if (fProj = nil) or (fProj.sourcesCount = 0) then exit;
-    tcFile: if fDoc = nil then exit;
+    tcProject: if (fProj = nil) or (fProj.sourcesCount = 0) then
+      exit;
+    tcFile: if fDoc = nil then
+      exit;
   end;
 
   fToolProc := TDexedProcess.Create(nil);

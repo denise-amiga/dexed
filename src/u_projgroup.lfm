@@ -159,7 +159,7 @@ inherited ProjectGroupWidget: TProjectGroupWidget
       end
       object button0: TDexedToolButton[5]
         Left = 113
-        Height = 28
+        Height = 5
         Top = 0
         AutoSize = True
         Caption = 'button0'

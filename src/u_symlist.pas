@@ -584,9 +584,10 @@ begin
   fDoc := document;
   if not Visible then
     exit;
-
-  if fAutoRefresh then beginDelayedUpdate
-  else if fRefreshOnFocus then callToolProc;
+  if fAutoRefresh then
+    beginDelayedUpdate
+  else if fRefreshOnFocus then
+    callToolProc;
 end;
 
 procedure TSymbolListWidget.docChanged(document: TDexedMemo);
@@ -607,7 +608,8 @@ end;
 {$REGION Symbol-tree things ----------------------------------------------------}
 procedure TSymbolListWidget.updateDelayed;
 begin
-  if not fAutoRefresh then exit;
+  if not fAutoRefresh then
+    exit;
   callToolProc;
 end;
 
@@ -796,7 +798,8 @@ procedure TSymbolListWidget.toolTerminated(sender: TObject);
 
   begin
     result := nil;
-    if node.isNil then case stype of
+    if node.isNil then
+      case stype of
       _alias    : exit(ndAlias);
       _class    : exit(ndClass);
       _enum     : exit(ndEnum);

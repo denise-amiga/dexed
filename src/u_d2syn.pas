@@ -141,13 +141,16 @@ const
 begin
   result := inherited Compare(range);
   assert(range <> nil);
-  if result <> 0 then exit;
-  //
+  if result <> 0 then
+    exit;
+
   if range is TSynD2SynRange then
   begin
     src_t := TSynD2SynRange(range);
-    if src_t.rangeKinds <> rangeKinds then exit(1);
-    if src_t.rString <> rString then exit(1);
+    if src_t.rangeKinds <> rangeKinds then
+      exit(1);
+    if src_t.rString <> rString then
+      exit(1);
     if src_t.nestedCommentsCount <> nestedCommentsCount then
       exit(cmpRes[src_t.nestedCommentsCount > nestedCommentsCount]);
     if src_t.namedRegionCount <> namedRegionCount then
@@ -421,17 +424,18 @@ begin
   fTokStop  := fTokStart;
 
   // EOL
-  if fTokStop > length(fLineBuf) then exit;
+  if fTokStop > length(fLineBuf) then
+    exit;
   readerReset;
 
   // script line
-  if LineIndex = 0 then if fTokStart = 1 then
-    if readDelim(reader, fTokStop, '#!') then
-    begin
-      fTokKind := tkCommt;
-      readLine(reader, fTokStop);
-      exit;
-    end else readerReset;
+  if (LineIndex = 0) and (fTokStart = 1) and readDelim(reader, fTokStop, '#!') then
+  begin
+    fTokKind := tkCommt;
+    readLine(reader, fTokStop);
+    exit;
+  end
+  else readerReset;
 
   // spaces
   if (isWhite(reader^)) then
@@ -449,8 +453,8 @@ begin
     fCurrRange := TSynD2SynRange.Create(nil);
 
   // line comments / region beg-end
-  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkAsm])
-      then if readDelim(reader, fTokStop, '//') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkAsm]) then
+    if readDelim(reader, fTokStop, '//') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '/') then
@@ -486,8 +490,10 @@ begin
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '*') then
-      if readDelim(reader, fTokStop, '/') then exit
-        else fTokKind := tkDDocs;
+      if readDelim(reader, fTokStop, '/') then
+        exit
+      else
+        fTokKind := tkDDocs;
     if readUntil(reader, fTokStop, '*/') then
       exit;
     if fTokKind = tkDDocs then
@@ -503,8 +509,10 @@ begin
   end else readerReset;
   if (rkBlockCom1 in fCurrRange.rangeKinds) or (rkBlockDoc1 in fCurrRange.rangeKinds) then
   begin
-    if (rkBlockDoc1 in fCurrRange.rangeKinds) then fTokKind := tkDDocs
-      else fTokKind := tkCommt;
+    if (rkBlockDoc1 in fCurrRange.rangeKinds) then
+      fTokKind := tkDDocs
+    else
+      fTokKind := tkCommt;
     if readUntil(reader, fTokStop, '*/') then
     begin
       if (fTokKind = tkCommt) then
@@ -565,8 +573,10 @@ begin
   end else readerReset;
   if (rkBlockCom2 in fCurrRange.rangeKinds) or (rkBlockDoc2 in fCurrRange.rangeKinds) then
   begin
-    if (rkBlockDoc2 in fCurrRange.rangeKinds) then fTokKind := tkDDocs
-      else fTokKind := tkCommt;
+    if (rkBlockDoc2 in fCurrRange.rangeKinds) then
+      fTokKind := tkDDocs
+    else
+      fTokKind := tkCommt;
     while (reader^ <> #10) and (fCurrRange.nestedCommentsCount > 0) do
     begin
       if readUntilAmong(reader, fTokStop, ['+', '/']) then
@@ -616,13 +626,15 @@ begin
     fTokKind := tkStrng;
     while(true) do
     begin
-      if not readUntilAmong(reader, fTokStop, stringStopChecks) then break;
+      if not readUntilAmong(reader, fTokStop, stringStopChecks) then
+        break;
       if (reader^ = '\') then
       begin
         readerNext;
         if reader^ <> #10 then
         begin
-          if fCurrRange.rString then continue;
+          if fCurrRange.rString then
+            continue;
           readerNext;
         end;
       end
@@ -643,13 +655,15 @@ begin
     fTokKind := tkStrng;
     while(true) do
     begin
-      if not readUntilAmong(reader, fTokStop, stringStopChecks) then break;
+      if not readUntilAmong(reader, fTokStop, stringStopChecks) then
+        break;
       if reader^ = '\' then
       begin
         readerNext;
         if reader^ <> #10 then
         begin
-          if fCurrRange.rString then continue;
+          if fCurrRange.rString then
+            continue;
           readerNext;
         end;
       end
@@ -728,7 +742,8 @@ begin
   end else readerReset;
 
   // bin & hex literals
-  if reader^ = '0' then if readerNext^ in ['b','B', 'x', 'X'] then
+  if reader^ = '0' then
+    if readerNext^ in ['b','B', 'x', 'X'] then
   begin
     fTokKind:= tkNumbr;
     readerNext;
@@ -736,18 +751,18 @@ begin
       readWhile(reader, fTokStop, ['0','1','_'])
     else
       readWhile(reader, fTokStop, hexaChars + ['.']);
-    // exponent, sign tokenized later as op then value as number
+    // exponent, sign tokenized later as op and the value as number
     if reader^ in ['P','p'] then
     begin
       readerNext;
       exit;
     end;
-         if not tryReadDelim(reader, fTokStop, 'uL')
-    then if not tryReadDelim(reader, fTokStop, 'UL')
-    then if not tryReadDelim(reader, fTokStop, 'Lu')
-    then if not tryReadDelim(reader, fTokStop, 'LU')
-    then if reader^ in ['U', 'L', 'u', 'i'] then
-      readerNext;
+    if not tryReadDelim(reader, fTokStop, 'uL')
+      and not tryReadDelim(reader, fTokStop, 'UL')
+      and not tryReadDelim(reader, fTokStop, 'Lu')
+      and not tryReadDelim(reader, fTokStop, 'LU')
+      and (reader^ in ['U', 'L', 'u', 'i']) then
+        readerNext;
     if not isWhite(reader^) and not isOperator1(reader^) and
       not isSymbol(reader^) then
     begin
@@ -801,22 +816,22 @@ begin
       end;
       readerPrev;
     end;
-    // exponent, sign tokenized later as op then value as number
+    // exponent, sign tokenized later as op and the value as number
     if reader^ in ['E','e'] then
     begin
       readerNext;
       exit;
     end;
     // try valid suffixes
-         if not tryReadDelim(reader, fTokStop, 'uL')
-    then if not tryReadDelim(reader, fTokStop, 'UL')
-    then if not tryReadDelim(reader, fTokStop, 'Lu')
-    then if not tryReadDelim(reader, fTokStop, 'LU')
-    then if not tryReadDelim(reader, fTokStop, 'fi')
-    then if not tryReadDelim(reader, fTokStop, 'Fi')
-    then if not tryReadDelim(reader, fTokStop, 'Li')
-    then if reader^ in ['U','L','u', 'i', 'f','F'] then
-      readerNext;
+    if not tryReadDelim(reader, fTokStop, 'uL')
+      and not tryReadDelim(reader, fTokStop, 'UL')
+      and not tryReadDelim(reader, fTokStop, 'Lu')
+      and not tryReadDelim(reader, fTokStop, 'LU')
+      and not tryReadDelim(reader, fTokStop, 'fi')
+      and not tryReadDelim(reader, fTokStop, 'Fi')
+      and not tryReadDelim(reader, fTokStop, 'Li')
+      and (reader^ in ['U','L','u', 'i', 'f','F']) then
+        readerNext;
     if not isWhite(reader^) and not isOperator1(reader^) and
       (not isSymbol(reader^) or (reader^ = '.')) then
     begin
@@ -952,7 +967,8 @@ begin
     exit;
   end;
 
-  if fLineBuf[fTokStop] = #10 then exit;
+  if fLineBuf[fTokStop] = #10 then
+    exit;
 
   readUntilAmong(reader, fTokStop, [#9, #10, ' ']);
   fTokKind := tkError;

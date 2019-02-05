@@ -344,7 +344,8 @@ var
 
 begin
 
-  if text = '' then exit;
+  if text = '' then
+    exit;
 
   noComment := lxoNoComments in Options;
 
@@ -684,7 +685,8 @@ begin
         else if (expSet) then
           while reader.Next^ in ['0'..'9', '_'] do
             identifier += reader.head^;
-        if not expSet then expSet:= reader.head^ in ['p','P'];
+        if not expSet then
+          expSet:= reader.head^ in ['p','P'];
         if (expSet) then
           while reader.Next^ in ['0'..'9', '_'] do
             identifier += reader.head^;
@@ -771,8 +773,10 @@ begin
         identifier += reader.head^;
       end;
       expSet := reader.head^ in ['e','E'];
-      if expSet then identifier += reader.head^;
-      if decSet then while isNumber(reader.Next^) or (reader.head^ = '_') do
+      if expSet then
+        identifier += reader.head^;
+      if decSet then
+        while isNumber(reader.Next^) or (reader.head^ = '_') do
       begin
         if isOutOfBound then
           exit;
@@ -781,9 +785,11 @@ begin
       if not expSet then
       begin
         expSet := reader.head^ in ['e','E'];
-        if expSet then identifier += reader.head^;
+        if expSet then
+          identifier += reader.head^;
       end;
-      if expSet then while isNumber(reader.Next^) or (reader.head^ = '_') do
+      if expSet then
+        while isNumber(reader.Next^) or (reader.head^ = '_') do
       begin
         if isOutOfBound then
           exit;

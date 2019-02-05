@@ -205,7 +205,9 @@ begin
   end
   else
   begin
-    if isModal then ShowModal else
+    if isModal then
+      ShowModal
+    else
     begin
       Show;
       BringToFront;
@@ -271,8 +273,10 @@ end;
 {$REGION Updaters---------------------------------------------------------------}
 procedure TDexedWidget.setDelayDur(value: Integer);
 begin
-  if value < 100 then value := 100;
-  if fDelayDur = value then exit;
+  if value < 100 then
+    value := 100;
+  if fDelayDur = value then
+    exit;
   fDelayDur := value;
   fUpdaterDelay.Interval := fDelayDur;
 end;
@@ -304,7 +308,8 @@ end;
 procedure TDexedWidget.endImperativeUpdate;
 begin
   Dec(fImperativeUpdateCount);
-  if fImperativeUpdateCount > 0 then exit;
+  if fImperativeUpdateCount > 0 then
+    exit;
   fUpdating := true;
   updateImperative;
   fUpdating := false;

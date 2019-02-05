@@ -131,7 +131,8 @@ begin
   if not (poUsePipes in process.Options) then
     exit;
   fProc := process;
-  if fProc.isNotNil then Panel1.Enabled:=true;
+  if fProc.isNotNil then
+      Panel1.Enabled:=true;
   txtExeName.Caption := shortenPath(fProc.Executable);
 end;
 
@@ -189,15 +190,18 @@ procedure TProcInputWidget.txtInpKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     VK_RETURN:
-      if fProc.isNotNil then sendInput;
+      if fProc.isNotNil then
+        sendInput;
     VK_UP: begin
       fMruPos += 1;
-      if fMruPos > fMru.Count-1 then fMruPos := 0;
+      if fMruPos > fMru.Count-1 then
+        fMruPos := 0;
       txtInp.Text := fMru[fMruPos];
     end;
     VK_DOWN: begin
       fMruPos -= 1;
-      if fMruPos < 0 then fMruPos := fMru.Count-1;
+      if fMruPos < 0 then
+        fMruPos := fMru.Count-1;
       txtInp.Text := fMru[fMruPos];
     end;
   end;

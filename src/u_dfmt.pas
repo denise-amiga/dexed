@@ -244,8 +244,8 @@ end;
 
 procedure TDfmtWidget.docFocused(document: TDexedMemo);
 begin
-  if document = fDoc
-    then exit;
+  if document = fDoc then
+    exit;
   fDoc := document;
 end;
 

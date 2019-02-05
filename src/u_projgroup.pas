@@ -424,8 +424,9 @@ begin
   end
   else if fBasePath = '' then
     c := true;
-  if c then for i:= 0 to projectCount-1 do
-    getItem(i).fFilename := ExtractRelativepath(n, getItem(i).fFilename);
+  if c then
+    for i:= 0 to projectCount-1 do
+      getItem(i).fFilename := ExtractRelativepath(n, getItem(i).fFilename);
   fBasePath := n;
   f := ChangeFileExt(f, '.dgrp');
   saveToFile(f);
@@ -666,8 +667,8 @@ procedure TProjectGroupWidget.btnAsyncClick(Sender: TObject);
 var
   prj: TProjectGroupItem;
 begin
-  if lstProj.ItemIndex = -1 then exit;
-  //
+  if lstProj.ItemIndex = -1 then
+    exit;
   prj := projectGroup.item[lstProj.ItemIndex];
   case prj.asyncMode of
     amSequential: prj.asyncMode := amParallel;
@@ -678,9 +679,8 @@ end;
 
 procedure TProjectGroupWidget.btnMoveDownClick(Sender: TObject);
 begin
-  if lstProj.ItemIndex = -1 then exit;
-  if lstProj.ItemIndex = lstProj.Items.Count-1 then exit;
-  //
+  if (lstProj.ItemIndex = -1) or (lstProj.ItemIndex = lstProj.Items.Count-1) then
+    exit;
   projectGroup.items.Exchange(lstProj.ItemIndex, lstProj.ItemIndex + 1);
   lstProj.Items.Exchange(lstProj.ItemIndex, lstProj.ItemIndex + 1);
   projectGroup.index:=projectGroup.index+1;
@@ -689,9 +689,8 @@ end;
 
 procedure TProjectGroupWidget.btnMoveUpClick(Sender: TObject);
 begin
-  if lstProj.ItemIndex = -1 then exit;
-  if lstProj.ItemIndex = 0 then exit;
-  //
+  if (lstProj.ItemIndex = -1) or (lstProj.ItemIndex = 0) then
+    exit;
   projectGroup.items.Exchange(lstProj.ItemIndex, lstProj.ItemIndex - 1);
   lstProj.Items.Exchange(lstProj.ItemIndex, lstProj.ItemIndex - 1);
   projectGroup.index:=projectGroup.index-1;
@@ -700,7 +699,8 @@ end;
 
 procedure TProjectGroupWidget.btnRemProjClick(Sender: TObject);
 begin
-  if lstProj.ItemIndex = -1 then exit;
+  if lstProj.ItemIndex = -1 then
+    exit;
   projectGroup.items.Delete(lstProj.Selected.Index);
   updateList;
 end;

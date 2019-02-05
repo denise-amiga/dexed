@@ -93,7 +93,8 @@ var
   trv: TTreeView;
 begin
   result := '';
-  if src.isNil then exit;
+  if src.isNil then
+    exit;
   // from mini-explorer
   if src is TShellListView then
   begin
@@ -132,9 +133,11 @@ var
   fname: string;
   fmt: TProjectFileFormat;
 begin
-  if Source.isNil then exit;
+  if Source.isNil then
+    exit;
   fname := getFilename(Source);
-  if not fname.fileExists then exit;
+  if not fname.fileExists then
+    exit;
 
   fmt := projectFormat(fname);
   if fmt in [pffDexed, pffDub] then

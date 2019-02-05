@@ -272,7 +272,8 @@ begin
   begin
     lastTerm := fStdoutEx.Position;
     while fStdoutEx.Read(buff, 1) = 1 do
-      if buff = 10 then lastTerm := fStdoutEx.Position;
+      if buff = 10 then
+        lastTerm := fStdoutEx.Position;
     fStdoutEx.Position := stored;
     if lastTerm <> stored then
     begin
@@ -313,7 +314,8 @@ procedure TDexedProcess.internalDoOnTerminate(sender: TObject);
 begin
   fHasRead := false;
   fTerminateChecker.Enabled := false;
-  if fDoneTerminated then exit;
+  if fDoneTerminated then
+    exit;
   fDoneTerminated := true;
 
   // restore if same proc is called again,

@@ -361,7 +361,7 @@ begin
   category  := 'Tools';
   identifier:= tool[fShctCount].toolAlias;
   aShortcut := tool[fShctCount].shortcut;
-  //
+
   fShctCount += 1;
   result := fShctCount < fTools.Count;
 end;
@@ -370,8 +370,8 @@ procedure TTools.scedSendItem(const category, identifier: string; aShortcut: TSh
 var
   i: Integer;
 begin
- if category <> 'Tools' then exit;
- //
+ if category <> 'Tools' then
+  exit;
  for i := 0 to tools.Count-1 do if tool[i].toolAlias = identifier then
  begin
    tool[i].shortcut := aShortcut;
@@ -401,7 +401,8 @@ end;
 
 procedure TTools.docClosing(document: TDexedMemo);
 begin
-  if fDoc <> document then exit;
+  if fDoc <> document then
+    exit;
   fDoc := nil;
 end;
 {$ENDREGION}
@@ -426,8 +427,8 @@ procedure TTools.executeTool(tool: TToolItem);
 var
   txt: string = '';
 begin
-  if tool.isNil then exit;
-  //
+  if tool.isNil then
+    exit;
   tool.execute(nil);
   if (tool.pipeInputKind <> pikNone) and fDoc.isNotNil
     and (poUsePipes in tool.options) and tool.fProcess.Input.isNotNil then
@@ -445,9 +446,8 @@ end;
 
 procedure TTools.executeTool(index: Integer);
 begin
-  if index < 0 then exit;
-  if index > fTools.Count-1 then exit;
-  //
+  if (index < 0) or (index > fTools.Count-1) then
+    exit;
   executeTool(tool[index]);
 end;
 {$ENDREGION}

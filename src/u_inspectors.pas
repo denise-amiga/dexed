@@ -146,7 +146,8 @@ begin
   rc := Rect(vRight, ARect.Top, ARect.Right, ARect.Bottom);
 
   FillChar(Style{%H-},SizeOf(Style),0);
-  With Style do begin
+  With Style do
+  begin
     Alignment := taLeftJustify;
     Layout := tlCenter;
     Opaque := false;
@@ -157,9 +158,11 @@ begin
     SystemFont := true;
   end;
   If (pedsInComboList in AState) and not (pedsInEdit in AState)
-  then begin
+  then
+  begin
     OldColor := ACanvas.Brush.Color;
-    If pedsSelected in AState then begin
+    If pedsSelected in AState then
+    begin
       ACanvas.Brush.Color := clHighlight;
       ACanvas.Font.Color := clHighlightText;
     end

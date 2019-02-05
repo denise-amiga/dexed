@@ -905,7 +905,8 @@ begin
   if fList.Count > 0 then
   begin
     delta := fMemo.CaretY - NativeInt(fList.Items[fPos]);
-    if (delta > -thresh) and (delta < thresh) then exit;
+    if (delta > -thresh) and (delta < thresh) then
+      exit;
   end;
   fList.Insert(0, Pointer(NativeInt(fMemo.CaretY)));
   {$POP}
@@ -1882,7 +1883,8 @@ begin
   LogicalCaretXY := point(x, LogicalCaretXY.Y);
   ExecuteCommand(ecWordLeft, #0, nil);
   x0 := LogicalCaretXY.X - 1;
-  if (x0 > 1) then while true do
+  if (x0 > 1) then
+    while true do
   begin
     if (x0 > 1) and (str[x0] in ['*', '+']) and (str[x0-1] = '/') then
     begin
@@ -1999,7 +2001,8 @@ begin
   p := CaretXY;
   line := lineText;
   if (CaretX = 1) or not (line[LogicalCaretXY.X] in IdentChars) or
-    not (line[LogicalCaretXY.X-1] in IdentChars)  then exit;
+    not (line[LogicalCaretXY.X-1] in IdentChars) then
+      exit;
   old := GetWordAtRowCol(LogicalCaretXY);
   DcdWrapper.getLocalSymbolUsageFromCursor(locs);
   if length(locs) = 0 then
@@ -2660,7 +2663,8 @@ begin
   str := LineText[1..CaretX];
   x := CaretX;
   i := min(x, str.length);
-  if findOpenParen then while true do
+  if findOpenParen then
+    while true do
   begin
     if i = 1 then
       break;
@@ -3578,10 +3582,13 @@ begin
         hideDDocs;
       end;
   end;
-  if not (Shift = [ssCtrl]) then exit;
+  if not (Shift = [ssCtrl]) then
+    exit;
   case Key of
-    VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
-    VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
+    VK_ADD: if Font.Size < 50 then
+      Font.Size := Font.Size + 1;
+    VK_SUBTRACT: if Font.Size > 3 then
+      Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
   fCanShowHint:=false;
@@ -3640,7 +3647,8 @@ begin
     '[': if autoCloseSquareBracket in fAutoClosedPairs then
       autoClosePair(autoCloseSquareBracket);
     '(': showCallTips(false);
-    ')': if fCallTipWin.Visible then decCallTipsLvl;
+    ')': if fCallTipWin.Visible then
+      decCallTipsLvl;
     '{': if (fAutoCloseCurlyBrace = autoCloseLexically) and
             (GetKeyShiftState <> [ssShift]) then
     begin
@@ -3673,9 +3681,9 @@ begin
   dx := X - fOldMousePos.x;
   dy := Y - fOldMousePos.y;
   fCanShowHint:=false;
-  if (shift = []) then if
-    ((dx < 0) and (dx > -5) or (dx > 0) and (dx < 5)) or
-      ((dy < 0) and (dy > -5) or (dy > 0) and (dy < 5)) then
+  if (shift = []) and
+    (((dx < 0) and (dx > -5) or (dx > 0) and (dx < 5)) or
+      ((dy < 0) and (dy > -5) or (dy > 0) and (dy < 5))) then
         fCanShowHint:=true;
   fOldMousePos := Point(X, Y);
   fMousePos := PixelsToRowColumn(fOldMousePos);

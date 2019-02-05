@@ -297,12 +297,14 @@ end;
 
 procedure TDcdWrapper.docChanged(document: TDexedMemo);
 begin
-  if fDoc <> document then exit;
+  if fDoc <> document then
+    exit;
 end;
 
 procedure TDcdWrapper.docClosing(document: TDexedMemo);
 begin
-  if fDoc <> document then exit;
+  if fDoc <> document then
+    exit;
   fDoc := nil;
 end;
 {$ENDREGION}
@@ -510,7 +512,8 @@ begin
     updateServerlistening;
     exit;
   end;
-  if not (fTempLines[0] = 'calltips') then exit;
+  if not (fTempLines[0] = 'calltips') then
+    exit;
 
   fTempLines.Delete(0);
   tips := fTempLines.Text;
@@ -561,7 +564,8 @@ begin
     updateServerlistening;
     exit;
   end;
-  if not (fTempLines[0] = 'identifiers') then exit;
+  if not (fTempLines[0] = 'identifiers') then
+    exit;
 
   list.Clear;
   for i := 1 to fTempLines.Count-1 do
@@ -607,7 +611,8 @@ begin
     exit;
 
   i := fDoc.MouseBytePosition;
-  if i = 0 then exit;
+  if i = 0 then
+    exit;
 
   terminateClient;
   fClient.Parameters.Clear;
