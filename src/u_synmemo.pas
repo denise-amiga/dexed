@@ -735,7 +735,7 @@ end;
 
 procedure TMixedIndentationDialog.spinSpacesPerTabChange(sender: TObject);
 begin
-  self.fSpacesPerTab:= TSpinEdit(sender).Value;
+  fSpacesPerTab:= TSpinEdit(sender).Value;
 end;
 {$ENDREGION}
 
@@ -2863,18 +2863,17 @@ procedure TDexedMemo.completionCodeCompletion(var value: string;
   SourceValue: string; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char;
   Shift: TShiftState);
 begin
-  if KeyChar <> '' then
+  if KeyChar = '' then
+    exit;
+  if KeyChar[1] = ' ' then
+    value := sourceValue + KeyChar[1]
+  else
   begin
-    if KeyChar[1] = ' ' then
-      value := sourceValue + KeyChar[1]
-    else
-    begin
-      fLastCompletion := value;
-      if KeyChar[1] in fCloseCompletionCharsWithSpace then
-        value += ' ' + KeyChar[1]
-      else if KeyChar[1] in fCloseCompletionChars then
-        value += KeyChar[1];
-    end;
+    fLastCompletion := value;
+    if KeyChar[1] in fCloseCompletionCharsWithSpace then
+      value += ' ' + KeyChar[1]
+    else if KeyChar[1] in fCloseCompletionChars then
+      value += KeyChar[1];
   end;
 end;
 
@@ -3073,11 +3072,15 @@ const
   spec = '@column %d: %s' + LineEnding;
 var
   i: integer;
+  w: PDscannerResult;
 begin
   result := '';
   for i := 0 to fDscannerResults.count-1 do
-    if fDscannerResults[i]^.line = line then
-      result += format(spec, [fDscannerResults[i]^.column, fDscannerResults[i]^.warning]);
+  begin
+    w := fDscannerResults[i];
+    if w^.line = line then
+      result += format(spec, [w^.column, w^.warning]);
+  end;
 end;
 
 function TDexedMemo.lineHasDscannerWarning(line: integer): boolean;
@@ -3476,9 +3479,11 @@ var
   i, len, llen: Integer;
 begin
   result := 0;
-  if fMousePos.y-1 > Lines.Count-1 then exit;
+  if fMousePos.y-1 > Lines.Count-1 then
+    exit;
   llen := Lines[fMousePos.y-1].length;
-  if fMousePos.X > llen  then exit;
+  if fMousePos.X > llen  then
+    exit;
   len := getSysLineEndLen;
   for i:= 0 to fMousePos.y-2 do
     result += Lines[i].length + len;
@@ -3495,12 +3500,10 @@ begin
     exit;
 
   lst := TStringList.Create;
-  lst.Text:=clipboard.asText;
+  lst.Text := clipboard.asText;
   try
     for i := 0 to lst.count-1 do
-    begin
       lst[i] := leadingTabsToSpaces(lst[i], TabWidth);
-    end;
     clipboard.asText := lst.strictText;
   finally
     lst.free;
@@ -3593,7 +3596,7 @@ begin
   end;
   inherited;
   if fAutoCallCompletion and fIsDSource and (not fCompletion.IsActive) and
-    (Key < $80) and (char(Key) in ['a'..'z', 'A'..'Z']) then
+    (Key < $80) and (char(Key) in ['a'..'z', 'A'..'Z', '_']) then
   begin
     fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
       ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
