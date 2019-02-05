@@ -3252,6 +3252,7 @@ var
   fname, covname: string;
   lst: TStringList;
   i: integer;
+  r: string = '';
 const
   ic : array[boolean] of TAppMessageKind = (amkWarn, amkInf);
 begin
@@ -3264,6 +3265,11 @@ begin
     {$IFDEF WINDOWS}
     covname := ReplaceStr(covname, DriveSeparator, '-');
     {$ENDIF}
+    if not covname.fileExists then
+    begin
+      r := fRunProc.Executable.extractFilePath;
+      covname := r + covname;
+    end;
     if covname.fileExists then
     begin
       lst := TStringList.Create;
@@ -3277,7 +3283,7 @@ begin
           fullcov := false;
         end;
         sysutils.DeleteFile(covname);
-        sysutils.DeleteFile('__main.lst');
+        sysutils.DeleteFile(r + '__main.lst');
         fMsgs.message(lst[lst.Count-1], fDoc, amcEdit, ic[fullcov]);
       finally
         lst.free;
