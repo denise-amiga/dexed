@@ -3020,6 +3020,7 @@ var
   asObj: boolean = false;
   hasMain: THasMain;
   rng: TStringRange = (ptr:nil; pos:0; len: 0);
+  s: string;
 begin
 
   if fAppliOpts.showBuildDuration then
@@ -3045,13 +3046,14 @@ begin
     CommandToList(firstlineFlags, lst);
     for i:= lst.Count-1 downto 0 do
     begin
-      if (lst[i].length > 2) and (lst[i][1..3] = '-of') then
+      s := lst[i];
+      if (s.length > 2) and (s[1..3] = '-of') then
       begin
         lst.Delete(i);
         fMsgs.message('the option "-of" is not be handled in the runnable modules',
           fDoc, amcEdit, amkWarn);
       end
-      else if lst[i] = '-c' then
+      else if s = '-c' then
       begin
         if not unittest then
           asObj:=true
@@ -3062,7 +3064,7 @@ begin
             fDoc, amcEdit, amkWarn);
         end;
       end
-      else if lst[i] = '-run' then
+      else if s = '-run' then
         lst.Delete(i);
     end;
   end;
