@@ -1692,45 +1692,46 @@ end;
 function TDexedMemo.autoIndentationLevel(line: Integer): Integer;
 var
   leftTokIndex: integer = -1;
-  t: PLexToken = nil;
   f: PLexToken = nil;
   i: integer = 0;
   s: string;
   c: char;
+  b: integer = 0;
   tabCount: integer = 0;
   spcCount: integer = 0;
 begin
+  result := 0;
+
   if not fIsDSource and not alwaysAdvancedFeatures or
     not (eoAutoIndent in Options) then
-      exit(0);
+      exit;
 
   leftTokIndex := getIndexOfTokenLeftTo(fLexToks, CaretXY);
   if (leftTokIndex = -1) or (leftTokIndex >= fLexToks.Count) then
-    exit(0);
+    exit;
 
-  result := 0;
-  // indent if we're right after an opening brace
-  t := fLexToks[leftTokIndex];
-  result += Byte((t^.kind = ltkSymbol) and (t^.Data[1] = '{'));
-  // goto line beg and look at its indent
-  for i:= leftTokIndex - 1 downto 0 do
+  // goto previous opened brace
+  for i:= leftTokIndex downto 0 do
   begin
     f := fLexToks[i];
-    if f^.position.y <> t^.position.y then
+    b += Byte((f^.kind = ltkSymbol) and (f^.Data[1] = '}'));
+    b -= Byte((f^.kind = ltkSymbol) and (f^.Data[1] = '{'));
+    if b = -1 then
       break;
-    t := f;
   end;
-  // add the first token of the line indent
-  if t^.position.x > 0 then
+  // retrieve the indent of the opened brace
+  if assigned(f) and (f^.position.x > 0) then
   begin
-    s := lines[t^.position.y-1][1 .. t^.position.x];
+    s := lines[f^.position.y-1];
     for c in s do
-    begin
-      tabCount += Byte(c = #9);
-      spcCount += Byte(c = ' ');
+    case c of
+      #9: tabCount += 1;
+      #32:spcCount += 1;
+      else break;
     end;
-    result += tabCount + spcCount div TabWidth;
   end;
+
+  result += 1 + tabCount + spcCount div TabWidth;
 end;
 
 procedure TDexedMemo.curlyBraceCloseAndIndent(close: boolean = true);
