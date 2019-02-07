@@ -96,6 +96,7 @@ The text following the symbol is written to the input stream, with an implicit n
 - **commandHistory**: Container that stores the custom GDB commands.
 - **coreBreakingSymbols**: List of the symbols specific to the D language, which allow, among other things, to automatically break on `throw`.
 - **customEvalHistory**: Container that stores the custom expressions that have been evaluated.
+- **hideCpuView**: When checked the CPU inspector is not visible anymore.
 - **ignoredSignals**: Sets the signals that won't break the execution.
 - **keepRedirectedStream**: Sets if the files that contain the inferior I/O history are kept on the disk. These files stands in the target directory with the extensions _.inferiorin_ and _.inferiorout_.
 - **shortcuts**: Allows to define a shortcut for each button in the toolbar.
