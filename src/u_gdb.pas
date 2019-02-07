@@ -1294,6 +1294,7 @@ end;
 
 procedure TGdbWidget.updateCpuViewVisibility;
 begin
+  GroupBox3.Visible := not fOptions.hideCpuView;
   if not GroupBox3.Visible then
     PageControl2.Align:= alClient
   else
@@ -1440,7 +1441,6 @@ end;
 procedure TGdbWidget.optionsChangesApplied(sender: TObject);
 begin
   updateMenu;
-  GroupBox3.Visible := not fOptions.hideCpuView;
   updateCpuViewVisibility;
 end;
 
