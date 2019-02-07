@@ -308,6 +308,7 @@ type
     fAsmSyntax: TAsmSyntax;
     fKeepRedirectedStreams: boolean;
     fStopAllThreadsOnBreak: boolean;
+    fHideCpuView: boolean;
     fDlangBreakpoints: TDlangBreakpoints;
     procedure setIgnoredSignals(value: TStringList);
     procedure setCommandsHistory(value: TStringList);
@@ -325,6 +326,7 @@ type
     property commandsHistory: TStringList read fCommandsHistory write setCommandsHistory;
     property coreBreakingSymbols: TDlangBreakpoints read fDlangBreakpoints write fDlangBreakpoints;
     property customEvalHistory: TStringList read fCustomEvalHistory write setCustomEvalHistory;
+    property hideCpuView: boolean read fHideCpuView write fHideCpuView default false;
     property ignoredSignals: TStringList read fIgnoredSignals write setIgnoredSignals;
     property keepRedirectedStreams: boolean read fKeepRedirectedStreams write fKeepRedirectedStreams default false;
     property shortcuts: TDebugShortcuts read fShortcuts write setShortcuts;
@@ -519,6 +521,7 @@ type
     fLastEvalStuff: string;
     fCommandProcessed: boolean;
     fDebugeeOptions: TDebugeeOptions;
+    procedure updateCpuViewVisibility;
     procedure continueDebugging;
     procedure waitCommandProcessed;
     procedure clearDisplays;
@@ -1260,6 +1263,7 @@ begin
     end;
   end;
 
+  updateCpuViewVisibility;
   updateMenu;
   updateButtonsState;
 end;
@@ -1286,6 +1290,14 @@ begin
   inherited setToolBarFlat(value);
   btnSendCom.Flat:=value;
   varListFlt.flat := value;
+end;
+
+procedure TGdbWidget.updateCpuViewVisibility;
+begin
+  if not GroupBox3.Visible then
+    PageControl2.Align:= alClient
+  else
+    PageControl2.Align:= alTop;
 end;
 
 procedure TGdbWidget.updateMenu;
@@ -1428,6 +1440,8 @@ end;
 procedure TGdbWidget.optionsChangesApplied(sender: TObject);
 begin
   updateMenu;
+  GroupBox3.Visible := not fOptions.hideCpuView;
+  updateCpuViewVisibility;
 end;
 
 procedure TGdbWidget.executeFromShortcut(sender: TObject);
@@ -2171,7 +2185,7 @@ procedure TGdbWidget.interpretJson;
   begin
     if fOptions.autoGetCallStack then
       infoStack;
-    if fOptions.autoGetRegisters then
+    if fOptions.autoGetRegisters and not fOptions.hideCpuView then
       infoRegs;
     if fOptions.autoGetVariables then
       infoVariables;
@@ -2341,7 +2355,7 @@ begin
   if fJson.findAny('msg', val) then
     fMsg.message(val.AsString, nil, amcMisc, amkAuto);
 
-  if fJson.findArray('register-values', arr) then
+  if not fOptions.hideCpuView and fJson.findArray('register-values', arr) then
   begin
     for i := 0 to arr.Count-1 do
     begin
@@ -2605,6 +2619,8 @@ end;
 
 procedure TGdbWidget.infoRegs;
 begin
+  if fOptions.hideCpuView then
+    exit;
   disableEditor;
   gdbCommand('-data-list-register-values r', @gdboutJsonize);
 end;
