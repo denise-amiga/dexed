@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 610
   Width = 687
   AllowDropFiles = True
-  Caption = 'Coedit'
+  Caption = 'Dexed'
   Menu = mainMenu
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
@@ -12,7 +12,7 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnWindowStateChange = FormWindowStateChange
   ShowHint = True
-  LCLVersion = '2.0.0.3'
+  LCLVersion = '2.0.0.4'
   object mainMenu: TMainMenu
     top = 1
     object MenuItem1: TMenuItem
