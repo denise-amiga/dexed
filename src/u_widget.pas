@@ -293,9 +293,8 @@ begin
   end
   else
   begin
-    if fUpdateTimer.isNotNil then
-      exit;
-    fUpdateTimer := TTimer.Create(nil);
+    if fUpdateTimer.isNil then
+      fUpdateTimer := TTimer.Create(nil);
     if fTimerUpdateKind = tukDelay then
     begin
       fUpdateTimer.Enabled := false;
