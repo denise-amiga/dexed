@@ -1731,7 +1731,8 @@ begin
     end;
   end;
 
-  result += 1 + tabCount + spcCount div TabWidth;
+  result += tabCount + spcCount div TabWidth;
+  result += Byte((result > 0) or (b <> 0));
 end;
 
 procedure TDexedMemo.curlyBraceCloseAndIndent(close: boolean = true);
