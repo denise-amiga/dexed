@@ -10,6 +10,15 @@ uses
 
 type
 
+  TTimedUpdateKind = (
+    // update timer is diabled.
+    tukNone,
+    // update timer update only one time, if required, and after a delay
+    tukDelay,
+    // update tiemr update periodically
+    tukLoop
+  );
+
   (**
    * Base type for an UI module.
    *)
@@ -37,15 +46,16 @@ type
     fUpdating: boolean;
     fDelayDur: Integer;
     fLoopInter: Integer;
-    fUpdaterAuto: TTimer;
-    fUpdaterDelay: TTimer;
+    fUpdateTimer: TTimer;
     fImperativeUpdateCount: Integer;
     fLoopUpdateCount: Integer;
     fOnDockingChanged: TWidgetDockingChangedEvent;
+    fTimerUpdateKind: TTimedUpdateKind;
     procedure setDelayDur(value: Integer);
     procedure setLoopInt(value: Integer);
     procedure updaterAutoProc(Sender: TObject);
     procedure updaterLatchProc(Sender: TObject);
+    procedure setTimerUpdateKind(value: TTimedUpdateKind);
   protected
     fIsDockable: boolean;
     fIsModal: boolean;
@@ -99,6 +109,8 @@ type
 
     procedure showWidget;
 
+    // set if the update based on a timer is enabled.
+    property timedUpdateKind: TTimedUpdateKind read fTimerUpdateKind write setTimerUpdateKind;
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;
     // true by default, allow a widget to be docked.
@@ -149,10 +161,6 @@ begin
   inherited;
   fToolBarVisible := true;
   fIsDockable := true;
-  fUpdaterAuto := TTimer.Create(self);
-  fUpdaterAuto.Interval := 0;
-  fUpdaterAuto.OnTimer := @updaterAutoProc;
-  fUpdaterDelay := TTimer.Create(self);
 
   updaterByLoopInterval := 70;
   updaterByDelayDuration := 500;
@@ -170,6 +178,7 @@ end;
 
 destructor TDexedWidget.destroy;
 begin
+  fUpdateTimer.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -271,6 +280,35 @@ end;
 {$ENDREGION}
 
 {$REGION Updaters---------------------------------------------------------------}
+procedure TDexedWidget.setTimerUpdateKind(value: TTimedUpdateKind);
+begin
+  if fTimerUpdateKind = value then
+    exit;
+  fTimerUpdateKind := value;
+  if fTimerUpdateKind = tukNone then
+  begin
+    if fUpdateTimer.isNil then
+      exit;
+    FreeAndNil(fUpdateTimer);
+  end
+  else
+  begin
+    if fUpdateTimer.isNotNil then
+      exit;
+    fUpdateTimer := TTimer.Create(nil);
+    if fTimerUpdateKind = tukDelay then
+    begin
+      fUpdateTimer.Enabled := false;
+      fUpdateTimer.OnTimer := @updaterAutoProc;
+      fUpdateTimer.Interval:= fDelayDur;
+    end
+    else begin
+      fUpdateTimer.Enabled := true;
+      fUpdateTimer.Interval:= fLoopInter;
+    end;
+  end;
+end;
+
 procedure TDexedWidget.setDelayDur(value: Integer);
 begin
   if value < 100 then
@@ -278,7 +316,8 @@ begin
   if fDelayDur = value then
     exit;
   fDelayDur := value;
-  fUpdaterDelay.Interval := fDelayDur;
+  if fUpdateTimer.isNotNil and (fTimerUpdateKind = tukDelay) then
+    fUpdateTimer.Interval := fDelayDur;
 end;
 
 procedure TDexedWidget.setLoopInt(value: Integer);
@@ -286,13 +325,8 @@ begin
   if fLoopInter = value then
     exit;
   fLoopInter := value;
-  fUpdaterAuto.Interval := fLoopInter;
-  if value = 0 then
-  begin
-    fUpdaterAuto.Enabled:= false;
-    fLoopUpdateCount := 0;
-  end
-  else fUpdaterAuto.Enabled:= true;
+  if fUpdateTimer.isNotNil and (fTimerUpdateKind = tukLoop) then
+    fUpdateTimer.Interval := fLoopInter;
 end;
 
 procedure TDexedWidget.IncLoopUpdate;
@@ -326,14 +360,14 @@ end;
 
 procedure TDexedWidget.beginDelayedUpdate;
 begin
-  fUpdaterDelay.Enabled := false;
-  fUpdaterDelay.Enabled := true;
-  fUpdaterDelay.OnTimer := @updaterLatchProc;
+  fUpdateTimer.OnTimer := @updaterLatchProc;
+  fUpdateTimer.Enabled := true;
 end;
 
 procedure TDexedWidget.stopDelayedUpdate;
 begin
-  fUpdaterDelay.OnTimer := nil;
+  fUpdateTimer.OnTimer := nil;
+  fUpdateTimer.Enabled := false;
 end;
 
 procedure TDexedWidget.forceDelayedUpdate;
@@ -355,7 +389,8 @@ begin
   fUpdating := true;
   updateDelayed;
   fUpdating := false;
-  fUpdaterDelay.OnTimer := nil;
+  fUpdateTimer.OnTimer := nil;
+  fUpdateTimer.Enabled:=false;
 end;
 
 procedure TDexedWidget.updateLoop;

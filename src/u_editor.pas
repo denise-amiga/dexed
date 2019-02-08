@@ -435,6 +435,8 @@ begin
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
 
+  timedUpdateKind := tukDelay;
+
   fOptions:= TPagesOptions.construct(self);
 end;
 

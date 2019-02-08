@@ -335,9 +335,9 @@ begin
     widg.fAutoDemangle:=fAutoDemangle;
     widg.fAlwaysFilter:=fAlwaysFilter;
     if fFastDisplay then
-      widg.updaterByLoopInterval:= 70
+      widg.timedUpdateKind := tukLoop
     else
-      widg.updaterByLoopInterval:= 0;
+      widg.timedUpdateKind := tukNone;
   end
   else inherited;
 end;

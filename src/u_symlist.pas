@@ -441,6 +441,8 @@ begin
   Tree.OnDblClick := @TreeDblClick;
   Tree.PopupMenu := contextMenu;
 
+  timedUpdateKind := tukDelay;
+
   EntitiesConnector.addObserver(self);
 end;
 

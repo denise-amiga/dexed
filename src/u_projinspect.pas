@@ -178,6 +178,8 @@ begin
     end;
   end;
 
+  timedUpdateKind := tukDelay;
+
   EntitiesConnector.addObserver(self);
 end;
 
