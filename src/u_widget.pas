@@ -298,12 +298,12 @@ begin
     if fTimerUpdateKind = tukDelay then
     begin
       fUpdateTimer.Enabled := false;
-      fUpdateTimer.OnTimer := @updaterAutoProc;
       fUpdateTimer.Interval:= fDelayDur;
     end
     else begin
       fUpdateTimer.Enabled := true;
       fUpdateTimer.Interval:= fLoopInter;
+      fUpdateTimer.OnTimer := @updaterAutoProc;
     end;
   end;
 end;
