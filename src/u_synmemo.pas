@@ -2384,7 +2384,10 @@ begin
   if fLexToks.Count < 3 then
     exit;
 
-  p := selStart;
+  // -1: selstart is 1-based while tokens offset is 0-based (-1)
+  // -2: source is lexed before the insertion while this proc is called after the insertion
+  p := selStart - 2;
+
   if value in [autoCloseBackTick, autoCloseDoubleQuote, autoCloseSingleQuote] then
   begin
     for i := 0 to fLexToks.Count-1 do
@@ -2392,24 +2395,27 @@ begin
       tk0 := fLexToks[i];
       // opening char is stuck to something, assume this thing is
       // what has to be between the pair, so don't close.
-      if (tk0^.offset+2 = p) and (tk0^.kind in dontCloseIfContiguousTo) then
+      if (tk0^.offset = p) and (tk0^.kind in dontCloseIfContiguousTo) then
         exit;
       if i < fLexToks.Count-1 then
       begin
         tk1 := fLexToks[i+1];
         // inside a strings lit., char lit., comments, don't put the mess.
-        if (tk0^.offset+1 <= p) and (p < tk1^.offset+2) and
+        if (tk0^.offset < p) and (p < tk1^.offset) and
            (tk0^.kind in [ltkString, ltkChar, ltkComment]) then
              exit;
+
+        // ?? wut ??
         // since the source is scanned before inserting the opening char,
         // in single line comments, p can be > to next tok offset
-        if (tk0^.offset+1 <= p) and (p > tk1^.offset+2) and
-           (tk0^.kind = ltkComment) and (tk0^.Data[1] = '/') then
-             exit;
+        // if (tk0^.offset < p) and (p > tk1^.offset) and
+        //   (tk0^.kind = ltkComment) and (tk0^.Data[1] = '/') then
+        //     exit;
+
       end
       // at the EOF an illegal tok is likely something that has to be closed so
       // dont auto insert the pair.
-      else if (tk0^.offset+1 <= p) and (tk0^.kind = ltkIllegal) then
+      else if (tk0^.offset < p) and (tk0^.kind = ltkIllegal) then
         exit;
     end;
   end
@@ -2419,12 +2425,14 @@ begin
     for i:=0 to fLexToks.Count-2 do
     begin
       tk0 := fLexToks[i];
+      if (tk0^.offset < p) and (p < tk0^.offset + tk0^.data.length) then
+        exit;
       tk1 := fLexToks[i+1];
       // opening char is stuck to something, assume this thing is
       // what has to be between the pair, so don't close.
-      if (tk0^.offset+2 = p) and (tk0^.kind in dontCloseIfContiguousTo) then
+      if (tk0^.offset = p) and (tk0^.kind in dontCloseIfContiguousTo) then
         exit;
-      if (tk0^.offset+1 <= p) and (p < tk1^.offset+2) and
+      if (tk0^.offset < p) and (p < tk1^.offset) and
         (tk0^.kind = ltkComment) then
           exit;
     end;
