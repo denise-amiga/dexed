@@ -252,6 +252,8 @@ begin
   if hasValidLibProject then
   begin
     prj := loadProject(fLibProject, true);
+    if not assigned(prj) then
+      exit;
     str := TStringList.Create;
     try
       cnt := prj.sourcesCount-1;
