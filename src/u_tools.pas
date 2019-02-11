@@ -15,6 +15,21 @@ type
 
   TPipeInputKind = (pikNone, pikEditor, pikSelection, pikLine);
 
+  // Enymerates the events for which a tool can be auto-executed.
+  // warning: TToolsEditorWidget uses the enum members as string literals to update the array of tools
+  TAutoExecuteEvent = (
+    // autoexecute if a project is focused
+    aeProjectFocused,
+    // autoexecute if a project will close
+    aeProjectClosing,
+    // autoexecute if a document is focused
+    aeDocumentFocused,
+    // autoexecute if a document will close
+    aeDocumentClosing
+  );
+
+  TAutoExecuteEvents = set of TAutoExecuteEvent;
+
   TToolItem = class(TCollectionItem)
   private
     fToolItems: TToolItems;
@@ -35,6 +50,7 @@ type
     fSymStringExpander: ISymStringExpander;
     fPipeInputKind: TPipeInputKind;
     fAskConfirmation: boolean;
+    fAutoExecuteEvents: TAutoExecuteEvents;
     procedure setParameters(value: TStringList);
     procedure processOutput(sender: TObject);
     procedure setToolAlias(value: string);
@@ -52,6 +68,7 @@ type
     property outputToNext: boolean read fOutputToNext write fOutputToNext;
     property pipeInputKind: TPipeInputKind read fPipeInputKind write fPipeInputKind;
     property askConfirmation: boolean read fAskConfirmation write fAskConfirmation;
+    property autoExecuteEvents: TAutoExecuteEvents read fAutoExecuteEvents write fAutoExecuteEvents;
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
@@ -65,23 +82,32 @@ type
     function findTool(const value: string): TToolItem;
   end;
 
-  TTools = class(TWritableLfmTextComponent, IEditableShortCut, IDocumentObserver)
+  TTools = class(TWritableLfmTextComponent, IEditableShortCut, IDocumentObserver, IProjectObserver, IFPObserver)
   private
     fTools: TToolItems;
     fShctCount: Integer;
     fDoc: TDexedMemo;
     fMenu: TMenuItem;
     fReadOnly: boolean;
+    fEventSensitiveTools: array [TAutoExecuteEvent] of array of TToolItem;
     function getTool(index: Integer): TToolItem;
     procedure setTools(value: TToolItems);
-    //
+    procedure FPOObservedChanged(ASender: TObject; Operation: TFPObservedOperation; Data : Pointer);
+
     procedure executeToolFromMenu(sender: TObject);
-    //
+
     procedure docNew(document: TDexedMemo);
     procedure docFocused(document: TDexedMemo);
     procedure docChanged(document: TDexedMemo);
     procedure docClosing(document: TDexedMemo);
-    //
+
+    procedure projNew(project: ICommonProject);
+    procedure projChanged(project: ICommonProject);
+    procedure projClosing(project: ICommonProject);
+    procedure projFocused(project: ICommonProject);
+    procedure projCompiling(project: ICommonProject);
+    procedure projCompiled(project: ICommonProject; success: boolean);
+
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
@@ -92,15 +118,14 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    //
+
     procedure updateMenu;
+    procedure updateEventSensitiveTools;
     function addTool: TToolItem;
     procedure executeTool(tool: TToolItem); overload;
     procedure executeTool(index: Integer); overload;
     property tool[index: integer]: TToolItem read getTool; default;
   end;
-
-//TODO-crefactor: either set the tools as a service of merge the tools collection& tool editor in a single unit.
 
 var
   CustomTools: TTools;
@@ -113,7 +138,7 @@ uses
 const
   toolsFname = 'tools.txt';
 
-{$REGION TToolItem -----------------------------------------------------------}
+{$REGION TToolItem -------------------------------------------------------------}
 function TToolItems.findTool(const value: string): TToolItem;
 var
   item: TCollectionItem;
@@ -299,7 +324,8 @@ begin
   fname := getDocPath + toolsFname;
   if fname.fileExists then
     loadFromFile(fname);
-
+  updateEventSensitiveTools;
+  fTools.FPOAttachObserver(self);
   EntitiesConnector.addObserver(self);
 end;
 
@@ -314,7 +340,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION IMainMenuProvider ---------------------------------------------------}
+{$REGION IMainMenuProvider -----------------------------------------------------}
 procedure TTools.updateMenu;
 var
   mnu: IMainMenu = nil;
@@ -349,7 +375,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION IEditableShortCut ---------------------------------------------------}
+{$REGION IEditableShortCut -----------------------------------------------------}
 function TTools.scedWantFirst: boolean;
 begin
   result := fTools.Count > 0;
@@ -384,15 +410,53 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION IDocumentObserver ---------------------------------------------------}
+{$REGION IProjectObserver ------------------------------------------------------}
+procedure TTools.projNew(project: ICommonProject);
+begin
+end;
+
+procedure TTools.projChanged(project: ICommonProject);
+begin
+end;
+
+procedure TTools.projClosing(project: ICommonProject);
+var
+  t: TToolItem;
+begin
+  for t in fEventSensitiveTools[aeProjectClosing] do
+    t.execute(nil);
+end;
+
+procedure TTools.projFocused(project: ICommonProject);
+var
+  t: TToolItem;
+begin
+  for t in fEventSensitiveTools[aeProjectFocused] do
+    t.execute(nil);
+end;
+
+procedure TTools.projCompiling(project: ICommonProject);
+begin
+end;
+
+procedure TTools.projCompiled(project: ICommonProject; success: boolean);
+begin
+end;
+{$ENDREGION}
+
+{$REGION IDocumentObserver -----------------------------------------------------}
 procedure TTools.docNew(document: TDexedMemo);
 begin
   fDoc := document;
 end;
 
 procedure TTools.docFocused(document: TDexedMemo);
+var
+  t: TToolItem;
 begin
   fDoc := document;
+  for t in fEventSensitiveTools[aeDocumentFocused] do
+    t.execute(nil);
 end;
 
 procedure TTools.docChanged(document: TDexedMemo);
@@ -400,9 +464,13 @@ begin
 end;
 
 procedure TTools.docClosing(document: TDexedMemo);
+var
+  t: TToolItem;
 begin
   if fDoc <> document then
     exit;
+  for t in fEventSensitiveTools[aeDocumentClosing] do
+    t.execute(nil);
   fDoc := nil;
 end;
 {$ENDREGION}
@@ -411,6 +479,15 @@ end;
 procedure TTools.setTools(value: TToolItems);
 begin
   fTools.Assign(value);
+  updateEventSensitiveTools();
+end;
+
+procedure TTools.FPOObservedChanged(ASender: TObject; Operation: TFPObservedOperation;
+  Data : Pointer);
+begin
+  if operation = ooFree then
+    exit;
+  updateEventSensitiveTools();
 end;
 
 function TTools.getTool(index: Integer): TToolItem;
@@ -449,6 +526,28 @@ begin
   if (index < 0) or (index > fTools.Count-1) then
     exit;
   executeTool(tool[index]);
+end;
+
+procedure TTools.updateEventSensitiveTools;
+var
+  i: integer;
+  j: integer;
+  e: TAutoExecuteEvent;
+  t: TToolItem;
+begin
+  for e := low(TAutoExecuteEvent) to high(TAutoExecuteEvent) do
+    setlength(fEventSensitiveTools[e], 0);
+  for i:= 0 to fTools.Count-1 do
+  begin
+    t := getTool(i);
+    for e := low(TAutoExecuteEvent) to high(TAutoExecuteEvent) do
+      if e in t.autoExecuteEvents then
+    begin
+      j := length(fEventSensitiveTools[e]);
+      setLength(fEventSensitiveTools[e], j + 1);
+      fEventSensitiveTools[e, j] := t;
+    end;
+  end;
 end;
 {$ENDREGION}
 

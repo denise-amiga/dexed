@@ -84,6 +84,7 @@ begin
   for i := 0 to CustomTools.tools.Count-1 do
     lstTools.Items[i] := CustomTools[i].toolAlias;
   CustomTools.updateMenu;
+  CustomTools.updateEventSensitiveTools;
 end;
 
 procedure TToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;
@@ -98,10 +99,14 @@ procedure TToolsEditorWidget.propsEdModified(Sender: TObject);
 begin
   if propsEd.ItemIndex = -1 then
     exit;
-
-  if (propsEd.Rows[propsEd.ItemIndex].Name = 'toolAlias')
-  or (propsEd.Rows[propsEd.ItemIndex].Name = 'shortcut') then
-    updateToolList;
+  case propsEd.Rows[propsEd.ItemIndex].Name of
+    'toolAlias': updateToolList;
+    'shortcut' : updateToolList;
+    'aeProjectFocused' : CustomTools.updateEventSensitiveTools;
+    'aeProjectClosing' : CustomTools.updateEventSensitiveTools;
+    'aeDocumentFocused' : CustomTools.updateEventSensitiveTools;
+    'aeDocumentClosing' : CustomTools.updateEventSensitiveTools;
+  end;
 end;
 
 procedure TToolsEditorWidget.BtnAddToolClick(Sender: TObject);
@@ -154,6 +159,7 @@ begin
   clearInspector;
   CustomTools.tools.Delete(lstTools.ItemIndex);
   rebuildToolList;
+  CustomTools.updateEventSensitiveTools;
 end;
 
 procedure TToolsEditorWidget.btnMoveUpClick(Sender: TObject);
