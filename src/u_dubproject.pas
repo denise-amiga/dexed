@@ -1738,7 +1738,7 @@ end;
 {$REGION Miscellaneous DUB free functions --------------------------------------}
 function sdl2json(const filename: string): TJSONObject;
 const
-  fmt = 'unexpected failure of SDL to JSON conversion'#10' +
+  fmt = 'unexpected failure of SDL to JSON conversion'#10 +
     'CurrentDirectory = %s'#10'dub process working dir = %s';
 var
   dub: TProcess;
