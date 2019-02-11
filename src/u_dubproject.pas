@@ -1737,11 +1737,14 @@ end;
 
 {$REGION Miscellaneous DUB free functions --------------------------------------}
 function sdl2json(const filename: string): TJSONObject;
+const
+  fmt = 'unexpected failure of SDL to JSON convertion'#10'CurrentDirectory = %s'#10'dub process working dir = %s';
 var
   dub: TProcess;
   str: TStringList;
-  jsn: TJSONData;
+  jsn: TJSONData = nil;
   prs: TJSONParser;
+  t: string;
 begin
   result := nil;
   dub := TProcess.Create(nil);
@@ -1758,7 +1761,12 @@ begin
     dub.Execute;
     processOutputToStrings(dub, str);
     while dub.Running do;
-    prs := TJSONParser.Create(str.Text, [joIgnoreTrailingComma, joUTF8]);
+    t := str.Text;
+    if t.isEmpty then
+    begin
+      raise Exception.Create(format(fmt, [GetCurrentDir, dub.CurrentDirectory]));
+    end;
+    prs := TJSONParser.Create(t, [joIgnoreTrailingComma, joUTF8]);
     try
       try
         jsn := prs.Parse;
