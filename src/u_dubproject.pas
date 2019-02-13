@@ -1746,15 +1746,25 @@ var
   jsn: TJSONData = nil;
   prs: TJSONParser;
   t: string;
+  d: string;
 begin
   result := nil;
   dub := TProcess.Create(nil);
   str := TStringList.Create;
+
+  // see note about chdir
+  d := GetCurrentDir;
+
   try
     dub.Executable := 'dub' + exeExt;
     dub.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
     dub.ShowWindow := swoHIDE;
     dub.CurrentDirectory:= filename.extractFilePath;
+
+    // need to move because it looks like DUB doesn't use
+    // the cd specified for the process we launch here.
+    chdir(dub.CurrentDirectory);
+
     dub.Parameters.Add('convert');
     dub.Parameters.Add('-s');
     dub.Parameters.Add('-f');
@@ -1786,6 +1796,10 @@ begin
       result := nil;
     end;
   finally
+
+    // see note about chdir
+    chdir(d);
+
     dub.free;
     str.Free;
   end;
