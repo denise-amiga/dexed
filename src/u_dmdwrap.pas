@@ -5,7 +5,7 @@ unit u_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess,
+  classes, sysutils, process, asyncprocess, LazFileUtils,
   u_common, u_processes, u_interfaces;
 
 (*
@@ -1061,7 +1061,9 @@ var
   e: TStringList;
   s: string;
   i: integer;
+  c: string;
 begin
+  c := fSymStringExpander.expand('<CPR>');
   e := TStringList.create;
   try
     e.AddStrings(['.d','.di']);
@@ -1070,6 +1072,8 @@ begin
       s := fExtraSrcs[i];
       if isStringDisabled(s) then
         continue;
+      if not FilenameIsAbsolute(s) then
+        s := c + s;
       s := fSymStringExpander.expand(s);
       if not listAsteriskPath(s, list, e) then
         list.Add(s);
@@ -1085,16 +1089,22 @@ var
   exts: TStringList;
   baseopt: TPathsOpts;
   rightList: TStringList;
+  i: integer;
+  c: string;
 begin
+  c := fSymStringExpander.expand('<CPR>');
   if base.isNil then
   begin
     exts := TStringList.Create;
     try
       exts.AddStrings(['.d', '.di', '.dd']);
-      for str in fExtraSrcs do
+      for i := 0  to fExtraSrcs.Count-1 do
       begin
+        str := fExtraSrcs[i];
         if isStringDisabled(str) then
           continue;
+        if not FilenameIsAbsolute(str) then
+          str := c + str;
         sym := fSymStringExpander.expand(str);
         if not listAsteriskPath(sym, list, exts) then
           list.Add(sym);
@@ -1102,14 +1112,38 @@ begin
     finally
       exts.Free;
     end;
-    for str in fImpMod do if not isStringDisabled(str) then
+    for i := 0  to fImpMod.Count-1 do
+    begin
+      str := fImpMod[i];
+      if isStringDisabled(str) then
+        continue;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
       list.Add('-I'+ fSymStringExpander.expand(str));
-    for str in fImpStr do if not isStringDisabled(str) then
+    end;
+    for i := 0  to fImpStr.Count-1 do
+    begin
+      str := fImpStr[i];
+      if isStringDisabled(str) then
+        continue;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
       list.Add('-J'+ fSymStringExpander.expand(str));
+    end;
     if fFname <> '' then
-      list.Add('-of' + fSymStringExpander.expand(fFname));
+    begin
+      str := fFname;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
+      list.Add('-of' + fSymStringExpander.expand(str));
+    end;
     if fObjDir <> '' then
-      list.Add('-od' + fSymStringExpander.expand(fObjDir));
+    begin
+      str := fObjDir;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
+      list.Add('-od' + fSymStringExpander.expand(str));
+    end;
   end else
   begin
     baseopt := TPathsOpts(base);
@@ -1120,10 +1154,13 @@ begin
     exts := TStringList.Create;
     try
       exts.AddStrings(['.d', '.di', '.dd']);
-      for str in rightList do
+      for i := 0  to rightList.Count-1 do
       begin
+        str := rightList[i];
         if isStringDisabled(str) then
           continue;
+        if not FilenameIsAbsolute(str) then
+          str := c + str;
         sym := fSymStringExpander.expand(str);
         if not listAsteriskPath(sym, list, exts) then
           list.Add(sym);
@@ -1136,17 +1173,29 @@ begin
       rightList := baseopt.fImpMod
     else
         rightList := fImpMod;
-    for str in rightList do
-      if not isStringDisabled(str) then
-        list.Add('-I'+ fSymStringExpander.expand(str));
+    for i := 0  to rightList.Count-1 do
+    begin
+      str := rightList[i];
+      if isStringDisabled(str) then
+        continue;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
+      list.Add('-I'+ fSymStringExpander.expand(str));
+    end;
     //
     if fImpStr.Count = 0 then
       rightList := baseopt.fImpStr
     else
       rightList := fImpStr;
-    for str in rightList do
-      if not isStringDisabled(str) then
-        list.Add('-J'+ fSymStringExpander.expand(str));
+    for i := 0  to rightList.Count-1 do
+    begin
+      str := rightList[i];
+      if isStringDisabled(str) then
+        continue;
+      if not FilenameIsAbsolute(str) then
+        str := c + str;
+      list.Add('-J'+ fSymStringExpander.expand(str));
+    end;
     //
     str := '';
     if fFname <> '' then
@@ -1154,7 +1203,11 @@ begin
     else if baseopt.fFname <> '' then
       str := baseopt.fFname;
     if str.isNotEmpty then
+    begin
+      if not FilenameIsAbsolute(str) then
+        str := c + DirectorySeparator + str;
       list.Add('-of' + fSymStringExpander.expand(str));
+    end;
     //
     str := '';
     if fObjDir <> '' then
@@ -1162,7 +1215,11 @@ begin
     else if baseopt.fObjDir <> '' then
         str := baseopt.fObjDir;
     if str.isNotEmpty then
+    begin
+      if not FilenameIsAbsolute(str) then
+        str := c + DirectorySeparator + str;
       list.Add('-od' + fSymStringExpander.expand(str));
+    end;
   end;
 end;
 
