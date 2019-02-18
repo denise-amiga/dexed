@@ -386,6 +386,13 @@ type
 
 implementation
 
+function mustPrependProjectRootPath(const str: string): Boolean;
+begin
+  result := false;
+  if str.length > 0 then
+    result := (str[1] <> '<') and not FilenameIsAbsolute(str);
+end;
+
 constructor TOptsGroup.create;
 begin
   fSymStringExpander := getSymStringExpander;
@@ -1072,7 +1079,7 @@ begin
       s := fExtraSrcs[i];
       if isStringDisabled(s) then
         continue;
-      if not FilenameIsAbsolute(s) then
+      if mustPrependProjectRootPath(s) then
         s := c + s;
       s := fSymStringExpander.expand(s);
       if not listAsteriskPath(s, list, e) then
@@ -1103,7 +1110,7 @@ begin
         str := fExtraSrcs[i];
         if isStringDisabled(str) then
           continue;
-        if not FilenameIsAbsolute(str) then
+        if mustPrependProjectRootPath(str) then
           str := c + str;
         sym := fSymStringExpander.expand(str);
         if not listAsteriskPath(sym, list, exts) then
@@ -1117,7 +1124,7 @@ begin
       str := fImpMod[i];
       if isStringDisabled(str) then
         continue;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-I'+ fSymStringExpander.expand(str));
     end;
@@ -1126,21 +1133,21 @@ begin
       str := fImpStr[i];
       if isStringDisabled(str) then
         continue;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-J'+ fSymStringExpander.expand(str));
     end;
     if fFname <> '' then
     begin
       str := fFname;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-of' + fSymStringExpander.expand(str));
     end;
     if fObjDir <> '' then
     begin
       str := fObjDir;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-od' + fSymStringExpander.expand(str));
     end;
@@ -1159,7 +1166,7 @@ begin
         str := rightList[i];
         if isStringDisabled(str) then
           continue;
-        if not FilenameIsAbsolute(str) then
+        if mustPrependProjectRootPath(str) then
           str := c + str;
         sym := fSymStringExpander.expand(str);
         if not listAsteriskPath(sym, list, exts) then
@@ -1178,7 +1185,7 @@ begin
       str := rightList[i];
       if isStringDisabled(str) then
         continue;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-I'+ fSymStringExpander.expand(str));
     end;
@@ -1192,7 +1199,7 @@ begin
       str := rightList[i];
       if isStringDisabled(str) then
         continue;
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + str;
       list.Add('-J'+ fSymStringExpander.expand(str));
     end;
@@ -1204,7 +1211,7 @@ begin
       str := baseopt.fFname;
     if str.isNotEmpty then
     begin
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + DirectorySeparator + str;
       list.Add('-of' + fSymStringExpander.expand(str));
     end;
@@ -1216,7 +1223,7 @@ begin
         str := baseopt.fObjDir;
     if str.isNotEmpty then
     begin
-      if not FilenameIsAbsolute(str) then
+      if mustPrependProjectRootPath(str) then
         str := c + DirectorySeparator + str;
       list.Add('-od' + fSymStringExpander.expand(str));
     end;
