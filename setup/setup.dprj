@@ -1,5 +1,5 @@
 object CurrentProject: TNativeProject
-  OptionsCollection = <
+  OptionsCollection = <  
     item
       name = 'win32'
       messagesOptions.tlsInformations = True
@@ -7,9 +7,9 @@ object CurrentProject: TNativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/dexed.<CPV>.win32.setup'
+      pathsOptions.outputFilename = 'output\dexed.<CPV>.win32.setup.exe'
       pathsOptions.importStringPaths.Strings = (
-        'win32/'
+        'win32\'
         '<CPP>'
       )
       pathsOptions.forceExtension = True
@@ -28,7 +28,7 @@ object CurrentProject: TNativeProject
         '<CPO>'
       )
       postBuildProcess.showWindow = swoHIDE
-    end
+    end  
     item
       name = 'win64'
       messagesOptions.tlsInformations = True
@@ -36,9 +36,9 @@ object CurrentProject: TNativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/dexed.<CPV>.win64.setup'
+      pathsOptions.outputFilename = 'output\dexed.<CPV>.win64.setup.exe'
       pathsOptions.importStringPaths.Strings = (
-        'win64/'
+        'win64\'
         '<CPP>'
       )
       pathsOptions.forceExtension = True
@@ -60,16 +60,16 @@ object CurrentProject: TNativeProject
         '<CPO>'
       )
       postBuildProcess.showWindow = swoHIDE
-    end
+    end  
     item
       name = 'nux32'
       outputOptions.inlining = True
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/dexed.<CPV>.linux32.setup'
+      pathsOptions.outputFilename = 'output\dexed.<CPV>.linux32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux32/'
+        'nux32\'
         '<CPP>'
       )
       preBuildProcess.executable = 'bash'
@@ -85,16 +85,16 @@ object CurrentProject: TNativeProject
         'setupzip-nux-noarch.sh'
         '<CPO>'
       )
-    end
+    end  
     item
       name = 'nux64'
       outputOptions.inlining = True
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/dexed.<CPV>.linux64.setup'
+      pathsOptions.outputFilename = 'output\dexed.<CPV>.linux64.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux64/'
+        'nux64\'
         '<CPP>'
       )
       preBuildProcess.executable = 'sh'
