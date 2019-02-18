@@ -311,11 +311,18 @@ var
   decSet: boolean;
   expSet: boolean;
   noComment: boolean;
+  tokenStringBraceBalance: integer = 0;
+  inTokenString: boolean = false;
 
   procedure addToken(aTk: TLexTokenKind);
   var
     ptk: PLexToken;
   begin
+    if (inTokenString) then
+    begin
+      identifier := '';
+      exit;
+    end;
     if (aTk = ltkComment) and (noComment) then
       exit;
     ptk := new(PLexToken);
@@ -565,16 +572,21 @@ begin
     end;
 
     // token string
-    if (reader.head^ = 'q') then
+    if reader.head^ = 'q' then
     begin
       if (reader.Next^ = '{') then
       begin
-        reader.saveBeginning;
+        if not inTokenString then
+        begin
+          inTokenString:=true;
+          tokenStringBraceBalance := 1;
+          reader.saveBeginning;
+          identifier := '';
+        end
+        else tokenStringBraceBalance += 1;
         reader.Next;
         if isOutOfBound then
           exit;
-        identifier := 'q{';
-        addToken(ltkSymbol);
         if callBackDoStop then
           exit;
         continue;
@@ -843,9 +855,22 @@ begin
     begin
       reader.saveBeginning;
       identifier += reader.head^;
-      if (reader.head^ = '}') and ((reader.head + 1)^  in stringPostfixes) and not
-        isIdentifier((reader.head + 2)^) then
+      if inTokenString then
+      begin
+        tokenStringBraceBalance -= Byte(reader.head^ = '}');
+        tokenStringBraceBalance += Byte(reader.head^ = '{');
+        if tokenStringBraceBalance = 0 then
+        begin
+          if (reader.head^ = '}') and ((reader.head + 1)^  in stringPostfixes) and not
+            isIdentifier((reader.head + 2)^) then
+              reader.Next;
+          inTokenString:=false;
+          identifier := '(<unsaved token string>)';
+          addToken(ltkString);
           reader.Next;
+          continue;
+        end;
+      end;
       reader.Next;
       addToken(ltkSymbol);
       if callBackDoStop then
