@@ -8,7 +8,7 @@ title: Widgets - Terminal
 
 {% include xstyle.css %}
 
-### Todo list
+### Terminal
 
 #### Description
 
