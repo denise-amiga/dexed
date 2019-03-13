@@ -1070,7 +1070,7 @@ var
   i: integer;
   c: string;
 begin
-  c := fSymStringExpander.expand('<CPR>');
+  c := fSymStringExpander.expand('<CPR>') + DirectorySeparator;
   e := TStringList.create;
   try
     e.AddStrings(['.d','.di']);
@@ -1099,7 +1099,7 @@ var
   i: integer;
   c: string;
 begin
-  c := fSymStringExpander.expand('<CPR>');
+  c := fSymStringExpander.expand('<CPR>') + DirectorySeparator;
   if base.isNil then
   begin
     exts := TStringList.Create;
