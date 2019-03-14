@@ -387,6 +387,7 @@ type
 
   private
 
+    fDockingIsInitialized: boolean;
     fGitIconIndex: integer;
     fImages: TImageList;
     fOptionCategories: TEditableOptionsSubject;
@@ -1281,7 +1282,6 @@ begin
   InitImages;
   InitMRUs;
   InitWidgets;
-  InitDocking;
   LoadSettings;
   layoutUpdateMenu;
   fMultidoc := getMultiDocHandler;
@@ -1698,6 +1698,8 @@ var
   h: TAnchorDockHostSite;
 begin
 
+  fDockingIsInitialized := true;
+
   if not reset then
   begin
     DockMaster.MakeDockSite(Self, [akBottom], admrpChild);
@@ -2090,6 +2092,9 @@ var
   url: string;
 begin
   inherited;
+
+  InitDocking;
+
   // TODO-cbetterfix: clipboard doesn't work first time it's used on a reloaded doc.
   // see: http://forum.lazarus.freepascal.org/index.php/topic,30616.0.htm
   if fAppliOpts.reloadLastDocuments then
@@ -3734,8 +3739,14 @@ procedure TMainForm.snapTopSplitterToMenu;
 var
   topsplt: TAnchorDockSplitter;
   topsite: TControl;
+  edtSite: TControl;
 begin
-  if GetDockSplitterOrParent(DockMaster.GetSite(fEditWidg), akTop, topsite) then
+  if not fDockingIsInitialized then
+    exit;
+  edtSite := DockMaster.GetSite(fEditWidg);
+  if edtSite.isNil then
+    exit;
+  if GetDockSplitterOrParent(edtSite, akTop, topsite) then
   begin
     if topsite is TAnchorDockHostSite and
       TAnchorDockHostSite(topsite).BoundSplitter.isNotNil and
