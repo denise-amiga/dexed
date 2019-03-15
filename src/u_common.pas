@@ -328,6 +328,14 @@ type
   // Converts the delta between two calls to GetTickCount64 to a string indicating a duration.
   function formatTicksAsDuration(ticks: UInt64): string;
 
+  (**
+   * Compares two TPoints.
+   *)
+  operator = (lhs: TPoint; rhs: TPoint): boolean;
+  operator > (lhs: TPoint; rhs: TPoint): boolean;
+  operator < (lhs: TPoint; rhs: TPoint): boolean;
+  operator <= (lhs: TPoint; rhs: TPoint): boolean;
+
 var
   // additional directories to find background tools
   additionalPath: string;
@@ -336,6 +344,26 @@ var
 
 
 implementation
+
+operator = (lhs: TPoint; rhs: TPoint): boolean;
+begin
+  exit((lhs.y = rhs.y) and (lhs.x = rhs.x));
+end;
+
+operator > (lhs: TPoint; rhs: TPoint): boolean;
+begin
+  exit((lhs.y > rhs.y) or ((lhs.y = rhs.y) and (lhs.x > rhs.x)));
+end;
+
+operator < (lhs: TPoint; rhs: TPoint): boolean;
+begin
+  exit(rhs > lhs);
+end;
+
+operator <= (lhs: TPoint; rhs: TPoint): boolean;
+begin
+  exit((lhs = rhs) or (lhs < rhs));
+end;
 
 function GetIconScaledSize: TIconScaledSize;
 var

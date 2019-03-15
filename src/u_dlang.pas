@@ -5,7 +5,7 @@ unit u_dlang;
 interface
 
 uses
-  Classes, SysUtils, u_dlangutils, u_dlangmaps;
+  Classes, SysUtils, u_common, u_dlangutils, u_dlangmaps;
 
 
 type
@@ -153,37 +153,9 @@ procedure getImports(list: TLexTokenList; imports: TStrings);
  *)
 function getIndexOfTokenLeftTo(tokens: TLexTokenList; caretPos: TPoint): integer;
 
-(**
- * Compares two TPoints.
- *)
-operator = (lhs: TPoint; rhs: TPoint): boolean;
-operator > (lhs: TPoint; rhs: TPoint): boolean;
-operator < (lhs: TPoint; rhs: TPoint): boolean;
-operator <= (lhs: TPoint; rhs: TPoint): boolean;
-
 implementation
 
 {$REGION TReaderHead -----------------------------------------------------------}
-operator = (lhs: TPoint; rhs: TPoint): boolean;
-begin
-  exit((lhs.y = rhs.y) and (lhs.x = rhs.x));
-end;
-
-operator > (lhs: TPoint; rhs: TPoint): boolean;
-begin
-  exit((lhs.y > rhs.y) or ((lhs.y = rhs.y) and (lhs.x > rhs.x)));
-end;
-
-operator < (lhs: TPoint; rhs: TPoint): boolean;
-begin
-  exit(rhs > lhs);
-end;
-
-operator <= (lhs: TPoint; rhs: TPoint): boolean;
-begin
-  exit((lhs = rhs) or (lhs < rhs));
-end;
-
 constructor TReaderHead.Create(const text: PChar; const colAndLine: TPoint);
 begin
   setReader(text, colAndLine);
