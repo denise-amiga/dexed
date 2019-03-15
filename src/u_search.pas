@@ -46,7 +46,7 @@ type
     procedure assignTo(target: TPersistent); override;
   end;
 
-  TSearchScope = (scDoc, scProj, scOpened);
+  TSearchScope = (scDoc, scSel, scProj, scOpened);
 
   TSearchWidget = class(TDexedWidget, IDocumentObserver, IProjectObserver)
     btnAllScope: TBitBtn;
@@ -78,6 +78,8 @@ type
     procedure chkEnableRepChange(Sender: TObject);
   private
     fDoc: TDexedMemo;
+    fDocSelStart: TPoint;
+    fDocSelStop: TPoint;
     fToFind: string;
     fReplaceWth: string;
     fActReplaceNext: TAction;
@@ -94,7 +96,8 @@ type
     procedure actReplaceAllExecute(sender: TObject);
     procedure replaceEvent(Sender: TObject; const ASearch, AReplace:
       string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
-
+    procedure replaceInSelEvent(Sender: TObject; const ASearch, AReplace:
+      string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
     procedure projNew(project: ICommonProject);
     procedure projChanged(project: ICommonProject);
     procedure projClosing(project: ICommonProject);
@@ -125,7 +128,7 @@ implementation
 
 const
   OptsFname = 'search.txt';
-  FindScopeStr: array[TSearchScope] of string = ('Document', 'Project', 'Opened docs');
+  FindScopeStr: array[TSearchScope] of string = ('Document', 'Selection', 'Project', 'Opened docs');
 
 {$REGION TSearchOptions ------------------------------------------------------}
 constructor TSearchOptions.create(aOwner: TComponent);
@@ -324,9 +327,47 @@ begin
   exit( MessageDlg('dexed', 'Replace this match ?', mtConfirmation, Btns, ''));
 end;
 
+procedure TSearchWidget.replaceInSelEvent(Sender: TObject; const ASearch, AReplace:
+  string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
+var
+  p: TPoint;
+begin
+  if fFindScope = scSel then
+  begin
+    p := Point(Column, Line);
+    ReplaceAction := raReplace;
+    if p < fDocSelStart then
+      ReplaceAction := raSkip
+    else if p > fDocSelStop then
+    begin
+      ReplaceAction := raCancel;
+      fCancelAll := true;
+    end;
+  end;
+end;
+
 procedure TSearchWidget.replaceEvent(Sender: TObject; const ASearch, AReplace:
   string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
+var
+  p: TPoint;
 begin
+
+  if fFindScope = scSel then
+  begin
+    p := Point(Column, Line);
+    if p < fDocSelStart then
+    begin
+      ReplaceAction := raSkip;
+      exit;
+    end
+    else if p > fDocSelStop then
+    begin
+      ReplaceAction := raCancel;
+      fCancelAll := true;
+      exit;
+    end;
+  end;
+
   case dlgReplaceAll of
     mrYes: ReplaceAction := raReplace;
     mrNo: ReplaceAction := raSkip;
@@ -355,8 +396,11 @@ begin
   fSearchMru.Insert(0,fToFind);
   cbToFind.Items.Assign(fSearchMru);
 
+  fDocSelStart := fDoc.BlockBegin;
+  fDocSelStop := fDoc.BlockEnd;
+
   case fFindScope of
-    scDoc:
+    scDoc, scSel:
     begin
       findAll(fDoc.fileName, fDoc.Lines, true);
     end;
@@ -426,8 +470,16 @@ begin
     search.Whole := ssoWholeWord in options;
     search.RegularExpressions:= ssoRegExpr in options;
     search.Pattern:=fToFind;
-    start := Point(1,1);
-    stop := Point(high(integer), lines.Count);
+    if (fFindScope = scSel) and fDoc.SelAvail then
+    begin
+      start := fDoc.BlockBegin;
+      stop := fDoc.BlockEnd;
+    end
+    else
+    begin
+      start := Point(1,1);
+      stop := Point(high(integer), lines.Count);
+    end;
     while search.FindNextOne(lines, start, stop, startf, stopf) do
     begin
       setLength(res, length(res) + 1);
@@ -530,6 +582,9 @@ begin
   if fDoc.isNil then
     exit;
 
+  fDocSelStart := fDoc.BlockBegin;
+  fDocSelStop := fDoc.BlockEnd;
+
   cbReplaceWth.Items.Assign(fReplaceMru);
   opts := getOptions + [ssoReplace];
   opts -= [ssoBackwards];
@@ -537,8 +592,14 @@ begin
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
   if chkPrompt.Checked then
-    fDoc.OnReplaceText := @replaceEvent;
-  fDoc.CaretXY := Point(0,0);
+    fDoc.OnReplaceText := @replaceEvent
+  else if fFindScope = scSel then
+  begin
+    fDoc.OnReplaceText := @replaceInSelEvent;
+    // the event only called if ssoPrompt is included
+    opts += [ssoPrompt];
+  end;
+  fDoc.CaretXY := fDocSelStart;
   while(true) do
   begin
     if fDoc.SearchReplace(fToFind, fReplaceWth, opts) = 0 then
@@ -550,6 +611,14 @@ begin
     end;
   end;
   fDoc.OnReplaceText := nil;
+
+  if fFindScope = scSel then
+  begin
+    fDoc.BlockBegin := fDocSelStart;
+    fDoc.BlockEnd := fDocSelStop;
+  end;
+
+
   updateImperative;
 end;
 {$ENDREGION}
@@ -658,7 +727,8 @@ end;
 procedure TSearchWidget.btnAllScopeClick(Sender: TObject);
 begin
   case fFindScope of
-    scDoc: fFindScope := scProj;
+    scDoc: fFindScope := scSel;
+    scSel: fFindScope := scProj;
     scProj: fFindScope := scOpened;
     scOpened: fFindScope := scDoc;
   end;

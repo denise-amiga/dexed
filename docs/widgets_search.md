@@ -24,7 +24,8 @@ The _Find all_ results are displayed in the [messages widget](widgets_messages),
 
 ![](img/find_all_results.png)
 
-The scope of _Find all_ can be set either to the current editor, to the whole project or to the opened documents by clicking the icon at the right.
+The scope of _Find all_ can be set either to the current editor, to the selection, to the whole project or to the opened documents by clicking the icon at the right.
+The scope of _Replace all_ only works in the current document or its selection, according to the text displayed on the button mentioned above.
 
 Notes:
 
