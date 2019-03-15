@@ -4,7 +4,8 @@ unit u_dastworx;
 interface
 
 uses
-  Classes, SysUtils, process, jsonscanner, fpjson, jsonparser, u_common;
+  Classes, SysUtils, process, jsonscanner, fpjson, jsonparser,
+  u_common, u_dialogs;
 
 (**
  * Gets the module name and the imports of the source code located in
@@ -18,7 +19,7 @@ procedure getModuleImports(source, imports: TStrings);
  * source. Each line in "import" that contains double quoted text indicates
  * that a new group of import starts.
  *)
-procedure getModulesImports(const files: string; results: TStrings);
+procedure getModulesImports(files: string; results: TStrings);
 
 procedure getHalsteadMetrics(source: TStrings; out jsn: TJSONObject);
 
@@ -64,14 +65,49 @@ begin
   end;
 end;
 
-procedure getModulesImports(const files: string; results: TStrings);
+procedure getModulesImports(files: string; results: TStrings);
 var
   str: string;
   prc: TProcess;
+  {$ifdef WINDOWS}
+  cdr: string = '';
+  itm: string;
+  spl: TStringList;
+  i: integer;
+  {$endif}
 begin
   str := getToolName;
   if str.isEmpty then
     exit;
+  {$ifdef WINDOWS}
+  if files.length > 32760{not 8 : "-f -i" length} then
+  begin
+    spl := TStringList.Create;
+    try
+      spl.LineBreak := ';';
+      spl.AddText(files);
+      cdr := commonFolder(spl);
+      if not cdr.dirExists then
+      begin
+        dlgOkError('Impossible to find the common directory in the list to analyze the imports:  ' + shortenPath(files, 200));
+        exit;
+      end;
+      for i:= 0 to spl.count-1 do
+      begin
+        itm := spl.strings[i];
+        spl.strings[i] := itm[cdr.length + 2 .. itm.length];
+      end;
+      files := spl.strictText;
+      if files.length > 32760 then
+      begin
+        dlgOkError('Too much files in the list to analyze the imports:  ' + shortenPath(files, 200));
+        exit;
+      end;
+    finally
+      spl.Free;
+    end;
+  end;
+  {$endif}
   prc := TProcess.Create(nil);
   try
     prc.Executable := str;
@@ -79,6 +115,10 @@ begin
     prc.Parameters.Add('-i');
     prc.Options := [poUsePipes {$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
     prc.ShowWindow := swoHIDE;
+    {$ifdef WINDOWS}
+    if cdr.isNotEmpty then
+      prc.CurrentDirectory := cdr;
+    {$endif}
     prc.Execute;
     prc.CloseInput;
     processOutputToStrings(prc, results);
