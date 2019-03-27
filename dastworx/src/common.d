@@ -197,10 +197,14 @@ string patchPascalString(size_t lenLimit = 0)(string value)
 {
     bool needed;
     foreach(i; 0 .. value.length)
-        if (value[i] == '\'')
+    switch (value[i])
     {
-        needed = true;
-        break;
+        case '\'' :
+        case '\r' :
+        case '\n' :
+            needed = true;
+            break;
+        default:
     }
     if (!needed)
         return value;
@@ -212,7 +216,7 @@ string patchPascalString(size_t lenLimit = 0)(string value)
         const size_t len = value.length;
     app.reserve(len);
     bool skip;
-    L: foreach (immutable i; 0..value.length)
+    L: foreach (immutable i; 0..len)
     {
         const char c = value[i];
         switch (c)
@@ -228,7 +232,9 @@ string patchPascalString(size_t lenLimit = 0)(string value)
                 if (skip)
                     app ~= value[i];
                 else
-                    app ~= "'#39'";
+                    app ~= "'#39";
+                if (i != len-1)
+                    app ~= "'";
                 skip = false;
                 break;
             }
@@ -237,7 +243,9 @@ string patchPascalString(size_t lenLimit = 0)(string value)
                 if (skip)
                     app ~= value[i];
                 else
-                    app ~= "'#10'";
+                    app ~= "'#10";
+                if (i != len-1)
+                    app ~= "'";
                 skip = false;
                 break;
             }
