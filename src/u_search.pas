@@ -396,12 +396,11 @@ begin
   fSearchMru.Insert(0,fToFind);
   cbToFind.Items.Assign(fSearchMru);
 
-  fDocSelStart := fDoc.BlockBegin;
-  fDocSelStop := fDoc.BlockEnd;
-
   case fFindScope of
     scDoc, scSel:
     begin
+      fDocSelStart := fDoc.BlockBegin;
+      fDocSelStop := fDoc.BlockEnd;
       findAll(fDoc.fileName, fDoc.Lines, true);
     end;
 
