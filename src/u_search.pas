@@ -594,11 +594,16 @@ begin
     fDoc.OnReplaceText := @replaceEvent
   else if fFindScope = scSel then
   begin
+    fDoc.CaretXY := fDocSelStart;
     fDoc.OnReplaceText := @replaceInSelEvent;
     // the event only called if ssoPrompt is included
     opts += [ssoPrompt];
   end;
-  fDoc.CaretXY := fDocSelStart;
+  if fFindScope <> scSel then
+  begin
+    fDoc.CaretXY := Point(1,1);
+    fDocSelStop := Point(high(integer), high(integer));
+  end;
   while(true) do
   begin
     if fDoc.SearchReplace(fToFind, fReplaceWth, opts) = 0 then
