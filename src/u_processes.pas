@@ -240,8 +240,10 @@ begin
   if not (poUsePipes in Options) then
     exit;
 
-  fill(Output, StdoutEx);
-  fill(Stderr, stderrEx);
+  if assigned(Output) then
+    fill(Output, StdoutEx);
+  if assigned(Stderr) then
+    fill(Stderr, stderrEx);
 end;
 
 procedure TDexedProcess.getFullLines(list: TStrings; consume: boolean = true);
@@ -293,13 +295,15 @@ end;
 procedure TDexedProcess.setOnTerminate(value: TNotifyEvent);
 begin
   fRealOnTerminate := value;
-  TAsyncProcess(self).OnTerminate := @internalDoOnTerminate;
+
+  //TAsyncProcess(self).OnTerminate := @internalDoOnTerminate;
 end;
 
 procedure TDexedProcess.setOnReadData(value: TNotifyEvent);
 begin
   fRealOnReadData := value;
-  TAsyncProcess(self).OnReadData := @internalDoOnReadData;
+
+  //TAsyncProcess(self).OnReadData := @internalDoOnReadData;
 end;
 
 procedure TDexedProcess.internalDoOnReadData(sender: TObject);
@@ -337,7 +341,12 @@ end;
 procedure TDexedProcess.checkTerminated(sender: TObject);
 begin
   if Running then
+  begin
+    if assigned(Output) and assigned(StdErr) then
+      if Output.NumBytesAvailable + Stderr.NumBytesAvailable > 0 then
+        internalDoOnReadData(self);
     exit;
+  end;
   fTerminateChecker.Enabled := false;
   internalDoOnTerminate(self);
 end;
