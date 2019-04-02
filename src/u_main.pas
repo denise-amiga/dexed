@@ -1911,25 +1911,12 @@ var
   x: TXMLConfigStorage;
   s: TMemoryStream;
   f: string;
-  i: integer;
   w: TDexedWidget;
 begin
   result := false;
   f := getDocPath + 'docking.xml';
   if fileExists(f) then
   begin
-
-    // TODO-cmaintenance: remove this from 3.8.0
-    with TStringList.Create do
-    try
-      LoadFromFile(f);
-      for i := 0 to Count-1 do
-        strings[i] := ReplaceText(strings[i], 'Name="CE', 'Name="');
-    finally
-      SaveToFile(f);
-      free;
-    end;
-
     x := TXMLConfigStorage.Create(f, true);
     try
       try
