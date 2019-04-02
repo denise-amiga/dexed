@@ -26,12 +26,8 @@ type
   );
 
   TBraceAutoCloseStyle = (
-    autoCloseNever,               // TODO-cmaintenace: remove the deprecated values two rlzs after 3.7.5
-    autoCloseAtEof,               // deprecated
-    autoCloseAlways,              // deprecated
+    autoCloseNever,
     autoCloseLexically,
-    autoCloseOnNewLineEof,        // deprecated
-    autoCloseOnNewLineAlways,     // deprecated
     autoCloseOnNewLineLexically
   );
 

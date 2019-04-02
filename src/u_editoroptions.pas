@@ -408,14 +408,6 @@ end;
 
 procedure TEditorOptionsBase.setAutoBraceClosingStyle(value: TBraceAutoCloseStyle);
 begin
-
-  //TODO-cmaintenance: remove this two rlzs after 3.7.5
-  case value of
-    autoCloseAtEof, autoCloseOnNewLineEof:  value := TBraceAutoCloseStyle.autoCloseNever;
-    autoCloseOnNewLineAlways: value := TBraceAutoCloseStyle.autoCloseOnNewLineLexically;
-    autoCloseAlways: value := TBraceAutoCloseStyle.autoCloseLexically;
-  end;
-
   fAutoCloseCurlyBrace:= value;
 end;
 
