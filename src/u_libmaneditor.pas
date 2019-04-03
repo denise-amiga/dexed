@@ -338,7 +338,7 @@ begin
   if assigned(fList) then
     fillList
   else
-    dlgOkError('could not get the package list, check you connection or that curl library is setup');
+    dlgOkError('could not get the package list, ' + simpleGetErrMsg);
 end;
 
 procedure TDubPackageQueryForm.fillList;

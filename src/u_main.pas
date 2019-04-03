@@ -2035,7 +2035,7 @@ begin
       res.free;
     end;
   end
-  else dlgOkError('Impossible to check new versions, no connectivity or lib CURL not installed');
+  else dlgOkError('Impossible to check new versions, ' + simpleGetErrMsg);
 end;
 
 procedure TMainForm.DoFirstShow;

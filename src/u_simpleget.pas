@@ -10,12 +10,18 @@ uses
 type
   PStream = ^TStream;
 
-// Get the content of url in the string data
+// Get the content of 'url' in the string 'data'
 function simpleGet(url: string; var data: string): boolean; overload;
-// Get the content of url in the stream data
+// Get the content of 'url' in the stream 'data'
 function simpleGet(url: string; data: TStream): boolean; overload;
-// Get the content of url in the JSON data, supposed to be a nil instance.
+// Get the content of 'url' in the JSON 'data', supposed to be a nil instance.
 function simpleGet(url: string; var data: TJSONData): boolean; overload;
+
+const
+  {$ifdef windows} libcurlFname = 'libcurl.dll';    {$endif}
+  {$ifdef linux}   libcurlFname = 'libcurl.so';     {$endif}
+  {$ifdef darwin}  libcurlFname = 'libcurl.dylib';  {$endif}
+  simpleGetErrMsg = 'no network or ' + libcurlFname + ' not setup correctly';
 
 implementation
 
@@ -35,7 +41,6 @@ end;
 function simpleGetClbckForStream(buffer:Pchar; size:PtrInt; nitems:PtrInt;
   appender: PStream): PtrInt; cdecl;
 begin
-  assert(appender <> nil);
   try
     result := appender^.write(buffer^, size * nitems);
   except
@@ -46,7 +51,6 @@ end;
 function simpleGetClbckForString(buffer:Pchar; size:PtrInt; nitems:PtrInt;
   appender: PString): PtrInt; cdecl;
 begin
-  assert(appender <> nil);
   result := size* nitems;
   try
     (appender^) += buffer;
