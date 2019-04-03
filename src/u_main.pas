@@ -2015,7 +2015,7 @@ begin
     try
       url := dat.FindPath('html_url');
       tgg := dat.FindPath('tag_name');
-      if url.isNotNil and tgg.isNotNil and (tgg.AsString <> '3_update_5') then
+      if url.isNotNil and tgg.isNotNil then
       begin
         res:= TResourceStream.Create(HINSTANCE, 'VERSION', RT_RCDATA);
         lst := TstringList.Create;
