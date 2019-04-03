@@ -59,7 +59,8 @@ immutable Resource[] oldResources =
 version(Windows)
     immutable Resource[] systemRelResources =
     [
-        Resource(cast(ImpType) import("libcurl.dll"), "libcurl.dll", Kind.exe)
+        Resource(cast(ImpType) import("libeay32.dll"), "libeay32.dll", Kind.exe),
+        Resource(cast(ImpType) import("ssleay32.dll"), "ssleay32.dll", Kind.exe),
     ];
 else
     immutable Resource[] systemRelResources = [];

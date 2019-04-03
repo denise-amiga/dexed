@@ -5,7 +5,7 @@ unit u_simpleget;
 interface
 
 uses
-  classes, libcurl, fpjson, jsonparser, jsonscanner;
+  classes, {$ifdef posix}libcurl,{$else} fphttpclient,{$endif} fpjson, jsonparser, jsonscanner;
 
 type
   PStream = ^TStream;
@@ -18,13 +18,14 @@ function simpleGet(url: string; data: TStream): boolean; overload;
 function simpleGet(url: string; var data: TJSONData): boolean; overload;
 
 const
-  {$ifdef windows} libcurlFname = 'libcurl.dll';    {$endif}
+  {$ifdef windows} libcurlFname = 'libeay32.dll, ssleay32.dll';    {$endif}
   {$ifdef linux}   libcurlFname = 'libcurl.so';     {$endif}
   {$ifdef darwin}  libcurlFname = 'libcurl.dylib';  {$endif}
   simpleGetErrMsg = 'no network or ' + libcurlFname + ' not setup correctly';
 
 implementation
 
+{$ifdef posix}
 var
   fCurlHandle: CURL = nil;
 
@@ -58,12 +59,16 @@ begin
     result := 0;
   end;
 end;
+{$endif}
 
 function simpleGet(url: string; var data: string): boolean; overload;
+{$ifdef posix}
 var
   c: CURLcode;
   h: CURL;
+{$endif}
 begin
+  {$ifdef posix}
   h := curlHandle();
   if not assigned(h) then
     exit(false);
@@ -81,13 +86,30 @@ begin
     exit(false);
   c := curl_easy_perform(h);
   result := c = CURLcode.CURLE_OK;
+  {$else}
+  result := true;
+  with TFPHTTPClient.Create(nil) do
+  try
+    try
+      AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+      data := get(url);
+    except
+      result := false;
+    end;
+  finally
+    free;
+  end;
+  {$endif}
 end;
 
 function simpleGet(url: string; data: TStream): boolean; overload;
+{$ifdef posix}
 var
   c: CURLcode;
   h: CURL;
+{$endif}
 begin
+  {$ifdef posix}
   h := curlHandle();
   if not assigned(h) then
     exit(false);
@@ -105,6 +127,20 @@ begin
    exit(false);
   c := curl_easy_perform(h);
   result := c = CURLcode.CURLE_OK;
+  {$else}
+  result := true;
+  with TFPHTTPClient.Create(nil) do
+  try
+    try
+      AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+      get(url, data);
+    except
+      result := false;
+    end;
+  finally
+    free;
+  end;
+  {$endif}
 end;
 
 function simpleGet(url: string; var data: TJSONData): boolean; overload;
@@ -127,7 +163,9 @@ begin
 end;
 
 finalization
+  {$ifdef posix}
   if assigned(fCurlHandle) then
     curl_easy_cleanup(fCurlHandle);
+  {$endif}
 end.
 
