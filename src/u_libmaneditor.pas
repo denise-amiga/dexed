@@ -334,7 +334,7 @@ procedure TDubPackageQueryForm.getList(sender: TObject);
 begin
   if assigned(fList) then
     fList.free;
-  simpleGet('http://code.dlang.org/api/packages/search', fList);
+  simpleGet('https://code.dlang.org/api/packages/search', fList);
   if assigned(fList) then
     fillList
   else
@@ -384,7 +384,7 @@ begin
   else
   begin
     result := '';
-    if not simpleGet('http://code.dlang.org/api/packages/' + packageName + '/latest', result) then
+    if not simpleGet('https://code.dlang.org/api/packages/' + packageName + '/latest', result) then
       result := 'master';
     if (result.length >= 7) and (result[2] in ['0'..'9']) then
       result := result[2..result.length-1]
