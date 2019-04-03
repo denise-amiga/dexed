@@ -1,7 +1,8 @@
 module setup;
 
 import
-    std.stdio, std.file, std.process, std.path, std.string, std.getopt;
+    std.stdio, std.file, std.process, std.path, std.string, std.getopt,
+    std.algorithm.iteration;
 
 version(X86)    version(linux)  version = nux32;
 version(X86_64) version(linux)  version = nux64;
@@ -54,6 +55,14 @@ immutable Resource[] oldResources =
     Resource(cast(ImpType) [], "cesyms" ~ exeExt, Kind.exe),
     Resource(cast(ImpType) [], "cetodo" ~ exeExt, Kind.exe),
 ];
+
+version(Windows)
+    immutable Resource[] systemRelResources =
+    [
+        Resource(cast(ImpType) import("libcurl.dll"), "libcurl.dll", Kind.exe)
+    ];
+else
+    immutable Resource[] systemRelResources = [];
 
 struct Formater
 {
@@ -195,11 +204,17 @@ void main(string[] args)
 
     size_t failures;
     bool done;
-    if(!uninstall)
+    if (!uninstall)
     {
         static immutable extractMsg = [": FAILURE", ": extracted"];
         static immutable oldMsg = [": FAILURE", ": removed old file"];
         foreach (ref res; ceResources)
+        {
+            done = installResource(res);
+            Formater.justify!'L'(res.destName ~ extractMsg[done]);
+            failures += !done;
+        }
+        foreach (ref res; systemRelResources)
         {
             done = installResource(res);
             Formater.justify!'L'(res.destName ~ extractMsg[done]);
@@ -251,6 +266,12 @@ void main(string[] args)
         // uninstall
         static immutable rmMsg = [": FAILURE", ": deleted"];
         foreach (ref res; ceResources)
+        {
+            done = uninstallResource(res);
+            Formater.justify!'L'(res.destName ~ rmMsg[done]);
+            failures += !done;
+        }
+        foreach (ref res; systemRelResources)
         {
             done = uninstallResource(res);
             Formater.justify!'L'(res.destName ~ rmMsg[done]);

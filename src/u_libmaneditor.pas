@@ -6,8 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, ComCtrls, Buttons, LazFileUtils, fphttpclient, StdCtrls,
-  fpjson, jsonparser,
+  Menus, ComCtrls, Buttons, LazFileUtils, StdCtrls, fpjson,
   u_widget, u_interfaces, u_ceproject, u_dmdwrap, u_common, u_dialogs,
   u_sharedres, process, u_dubproject, u_observer, u_libman,
   u_projutils, u_dsgncontrols, u_controls;
@@ -88,6 +87,8 @@ type
 implementation
 {$R *.lfm}
 
+uses
+  u_simpleget;
 const
   notav: string = '< n/a >';
   enableStr: array [boolean] of string = ('false','true');
@@ -330,31 +331,14 @@ begin
 end;
 
 procedure TDubPackageQueryForm.getList(sender: TObject);
-var
-  pge: string;
-  cli: TFPHTTPClient;
-  prs: TJSONParser;
 begin
   if assigned(fList) then
     fList.free;
-  cli := TFPHTTPClient.Create(nil);
-  try
-    try
-      //TODO: use HTTPS when FCL-WEB will allow it again.
-      pge := cli.Get('http://code.dlang.org/api/packages/search');
-    except
-      pge := '[]';
-    end;
-  finally
-    cli.Free;
-  end;
-  prs := TJSONParser.Create(pge, []);
-  try
-    fList := prs.Parse;
-  finally
-    prs.Free;
-  end;
-  fillList;
+  simpleGet('http://code.dlang.org/api/packages/search', fList);
+  if assigned(fList) then
+    fillList
+  else
+    dlgOkError('could not get the package list, check you connection or that curl library is setup');
 end;
 
 procedure TDubPackageQueryForm.fillList;
@@ -386,33 +370,24 @@ var
   jsn: TJSONData;
 begin
   result := 'master';
-  if fGetLatestTag then
+  if not fGetLatestTag then
+    exit;
+  // list is updated
+  if fList.isNotNil and (cbb.ItemIndex <> -1) and
+    cbb.Items.Objects[cbb.ItemIndex].isNotNil then
   begin
-    // list is updated
-    if fList.isNotNil and (cbb.ItemIndex <> -1) and
-      cbb.Items.Objects[cbb.ItemIndex].isNotNil then
-    begin
-      jsn := TJSONData(cbb.Items.Objects[cbb.ItemIndex]);
-      jsn := jsn.FindPath('version');
-      result := jsn.AsString;
-    end
-    else
-    // use API
-    begin
-      with TFPHTTPClient.Create(nil) do
-      try
-        try
-          //TODO: use HTTPS when FCL-WEB will allow it again.
-          result := Get('http://code.dlang.org/api/packages/' + packageName + '/latest');
-        except
-          result := 'master';
-        end;
-      finally
-        Free;
-      end;
-      if (result.length >= 7) and (result[2] in ['0'..'9']) then
-        result := result[2..result.length-1]
-    end;
+    jsn := TJSONData(cbb.Items.Objects[cbb.ItemIndex]);
+    jsn := jsn.FindPath('version');
+    result := jsn.AsString;
+  end
+  // use API
+  else
+  begin
+    result := '';
+    if not simpleGet('http://code.dlang.org/api/packages/' + packageName + '/latest', result) then
+      result := 'master';
+    if (result.length >= 7) and (result[2] in ['0'..'9']) then
+      result := result[2..result.length-1]
   end;
 end;
 

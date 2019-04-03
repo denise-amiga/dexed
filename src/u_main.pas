@@ -8,9 +8,9 @@ uses
   Classes, SysUtils, LazFileUtils, SynEditKeyCmds, SynHighlighterLFM, Forms,
   StdCtrls, AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls,
   Graphics, strutils, Dialogs, Menus, ActnList, ExtCtrls, process,
-  {$IFDEF WINDOWS}Windows, {$ENDIF} XMLPropStorage, SynExportHTML, fphttpclient,
-  fpjson, jsonparser, jsonscanner, LCLIntf,
-  u_common, u_ceproject, u_synmemo, u_writableComponent,
+  {$IFDEF WINDOWS}Windows, {$ENDIF} XMLPropStorage, SynExportHTML,
+  fpjson, jsonscanner, LCLIntf,
+  u_common, u_ceproject, u_synmemo, u_writableComponent, u_simpleget,
   u_widget, u_messages, u_interfaces, u_editor, u_projinspect, u_ceprojeditor,
   u_search, u_miniexplorer, u_libman, u_libmaneditor, u_todolist, u_observer,
   u_toolseditor, u_procinput, u_optionseditor, u_symlist, u_mru, u_processes,
@@ -2000,56 +2000,19 @@ function checkForUpdate: string;
 const
   updURL = 'https://api.github.com/repos/Basile-z/dexed/releases/latest';
 var
-  prs: TJSONParser = nil;
   dat: TJSONData = nil;
   tgg: TJSONData = nil;
   url: TJSONData = nil;
   str: string = '';
-  cli: TFPHTTPClient = nil;
   lst: TStringList = nil;
   res: TResourceStream = nil;
   svo: TSemVer;
   sva: TSemVer;
 begin
   result := '';
-
-  if openssl.IsSSLloaded then
+  if simpleGet(updURL, dat) then
   begin
     try
-      cli := TFPHTTPClient.Create(nil);
-      try
-        cli.AllowRedirect:=true;
-        cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
-        str := cli.Get(updURL);
-      finally
-        cli.free;
-      end;
-    except
-      dlgOkError('The latest release cannot be determined (HTTP client)');
-    end;
-  end
-
-  else if not openssl.IsSSLloaded and exeFullName('curl').isNotEmpty then
-  begin
-    if not process.RunCommand('curl', [updURL], str) then
-    begin
-      dlgOkError('The latest release cannot be determined (CURL)');
-      exit;
-    end
-  end
-  else
-  begin
-    dlgOkInfo('No suitable tool can be used to determine the latest version.' +
-              'Install at least CURL as a command line tool, visible in the PATH.' +
-              'Newest OpenSSL versions (>= 1.1) are currently not supported');
-    exit;
-  end;
-
-  prs := TJSONParser.Create(str, [joUTF8, joIgnoreTrailingComma]);
-  try
-    dat := prs.Parse;
-    if dat.isNotNil then
-    begin
       url := dat.FindPath('html_url');
       tgg := dat.FindPath('tag_name');
       if url.isNotNil and tgg.isNotNil and (tgg.AsString <> '3_update_5') then
@@ -2062,16 +2025,17 @@ begin
         str := tgg.AsString;
         svo.init(str, false);
         if svo.valid and sva.valid and (svo > sva) then
-          result := url.AsString;
+          result := url.AsString
+        else
+          dlgOkInfo('No new release available');
       end;
+    finally
+      dat.free;
+      lst.free;
+      res.free;
     end;
-  finally
-    prs.Free;
-    dat.free;
-    lst.free;
-    res.free;
-  end;
-
+  end
+  else dlgOkError('Impossible to check new versions, no connectivity or lib CURL not installed');
 end;
 
 procedure TMainForm.DoFirstShow;
@@ -2150,8 +2114,7 @@ begin
     if dlgYesNo('An new release is available, do you wish to visit the release page ?' +
       lineEnding + '(' + url +')') = mrYes then
         OpenURL(url);
-  end
-  else dlgOkInfo('No new release available or no connectivity');
+  end;
 end;
 
 procedure TMainForm.mnuItemManualClick(Sender: TObject);

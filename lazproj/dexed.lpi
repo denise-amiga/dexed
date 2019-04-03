@@ -526,7 +526,7 @@
         <PackageName Value="LCL"/>
       </Item8>
     </RequiredPackages>
-    <Units Count="60">
+    <Units Count="61">
       <Unit0>
         <Filename Value="dexed.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -842,6 +842,10 @@
         <ComponentName Value="CeNewDubProject"/>
         <ResourceBaseClass Value="Form"/>
       </Unit59>
+      <Unit60>
+        <Filename Value="..\src\u_simpleget.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit60>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
