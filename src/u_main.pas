@@ -3714,13 +3714,12 @@ end;
 function  TMainForm.checkProjectLock(message: boolean = true): boolean;
 begin
   result := false;
-  if fProjActionsLock then
-  begin
-    result := true;
-    if message then
-      dlgOkInfo('This action is disabled while a project compiles',
-        'Project lock warning');
-  end
+  if not fProjActionsLock then
+    exit;
+  result := true;
+  if message then
+    dlgOkInfo('This action is disabled while a project compiles',
+      'Project lock warning');
 end;
 
 procedure TMainForm.showProjTitle;
