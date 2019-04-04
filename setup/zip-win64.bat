@@ -7,4 +7,5 @@ cd win64
  dcd.license.txt dexed.license.txt^
  dexed.exe dastworx.exe^
  dexed.ico dexed.png^
- dcd-server.exe dcd-client.exe dscanner.exe
+ dcd-server.exe dcd-client.exe dscanner.exe^
+ libeay32.dll ssleay32.dll
