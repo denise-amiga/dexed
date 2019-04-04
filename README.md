@@ -7,11 +7,11 @@ Dexed, the _D Extended EDitor_, is an IDE for the [D programming language](https
 - available for _Linux_ or _Windows_.
 - supports all the D compilers (DMD-GDC-LDC).
 - supports the DUB projects (JSON or SDL) and also its own project format.
-- support the DUB scripts (aka _single file packages_) and its own script format (aka _runnable modules_).
+- supports the DUB scripts (aka _single file packages_) and its own script format (aka _runnable modules_).
 - full [D Completion Daemon](https://github.com/dlang-community/DCD) integration (completion, ddoc display, call tips, jump to declaration, rename identifier).
 - Dynamic [D-Scanner](https://github.com/dlang-community/D-Scanner) linting with results displayed in the editor gutter.
 - single click to compile and to _unittest_ a module and optionally display tests coverage.
-- advanced editor with D2 syntax highlighter, folds, regions, identifier markup, macros, sync-edit, etc.
+- advanced editor with D2 syntax highlighter, folds, regions, identifier markup, sync-edit, etc.
 - additonal highlithers for C and C++ sources, based on the D color scheme, for other files a generic bicolor highlighter is used.
 - edition helpers: comment blocks, local identifier renaming, brace auto-closing, ddoc templates, etc.
 - Debugging with a GDB gui. (**linux only**)
@@ -24,20 +24,20 @@ Dexed, the _D Extended EDitor_, is an IDE for the [D programming language](https
 
 ## Project information
 
-- :bookmark: latest release: version 3.7.8, Mon 18 Feb 2019.
+- :bookmark: latest release: version 3.7.9, Fri 5 Apr 2019.
 - :scroll: licensed under the terms of the Boost software license.
 - :dollar: Development can be supported with [Paypal donations](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AQDJVC39PJF7J).
 
-## Download version 3.7.8
+## Download version 3.7.9
 
 Download the zipped binaries or the zip that contains the setup program for you platform:
 
-- :package: [setup program for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed.3.7.8.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed.3.7.8.linux64.zip)
-- :package: [setup program for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed.3.7.8.win64.setup.zip)
-- :package: [binaries for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed.3.7.8.win64.zip)
-- :package: [rpm for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed-3.7.8-0.x86_64.rpm)
-- :package: [deb for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.8/dexed-3.7.8.amd64.deb)
+- :package: [setup program for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed.3.7.9.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed.3.7.9.linux64.zip)
+- :package: [setup program for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed.3.7.9.win64.setup.zip)
+- :package: [binaries for Windows 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed.3.7.9.win64.zip)
+- :package: [rpm for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed-3.7.9-0.x86_64.rpm)
+- :package: [deb for Linux 64 bit](https://github.com/Basile-z/dexed/releases/download/v3.7.9/dexed-3.7.9.amd64.deb)
 
 The _zip_ archives allow to move freely the files.
 The _setup.zip_ archives contain a command line program that installs to predefined locations so that the software can be run without additional intervention.
