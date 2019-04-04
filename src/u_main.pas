@@ -4264,8 +4264,6 @@ begin
   fFreeProj := nil;
 end;
 
-// TODO-cprojectsgroup: add a "out of mem" protection in async mode.
-
 procedure TMainForm.compileGroup(async: TAsyncWait);
 var
   i, j: integer;
