@@ -2073,7 +2073,7 @@ begin
     url := checkForUpdate;
     if url <> '' then
     begin
-      if dlgYesNo('An new release is available, do you wish to visit the release page ?' +
+      if dlgYesNo('An new version is available, do you wish to visit the release page ?' +
         lineEnding + '(' + url +')') = mrYes then
           OpenURL(url);
     end;
