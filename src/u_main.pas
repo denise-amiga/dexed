@@ -2103,12 +2103,11 @@ var
   url: string;
 begin
   url := checkForUpdate;
-  if url <> '' then
-  begin
-    if dlgYesNo('An new release is available, do you wish to visit the release page ?' +
-      lineEnding + '(' + url +')') = mrYes then
-        OpenURL(url);
-  end;
+  if url.isEmpty then
+    exit;
+  if dlgYesNo('An new release is available, do you wish to visit the release page ?' +
+    lineEnding + '(' + url +')') = mrYes then
+      OpenURL(url);
 end;
 
 procedure TMainForm.mnuItemManualClick(Sender: TObject);
