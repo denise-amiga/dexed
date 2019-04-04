@@ -10,7 +10,6 @@ object MainForm: TMainForm
   OnCloseQuery = FormCloseQuery
   OnDropFiles = FormDropFiles
   OnResize = FormResize
-  OnWindowStateChange = FormWindowStateChange
   ShowHint = True
   LCLVersion = '2.0.0.4'
   object mainMenu: TMainMenu

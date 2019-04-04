@@ -331,7 +331,6 @@ type
     procedure ApplicationProperties1Activate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormResize(Sender: TObject);
-    procedure FormWindowStateChange(Sender: TObject);
     procedure mnuItemAboutClick(Sender: TObject);
     procedure mnuItemCheckUpdClick(Sender: TObject);
     procedure mnuItemManualClick(Sender: TObject);
@@ -2094,11 +2093,6 @@ begin
   snapTopSplitterToMenu;
 end;
 
-procedure TMainForm.FormWindowStateChange(Sender: TObject);
-begin
-  snapTopSplitterToMenu;
-end;
-
 procedure TMainForm.mnuItemAboutClick(Sender: TObject);
 begin
   fInfoWidg.showWidget;
@@ -3687,8 +3681,9 @@ end;
 
 procedure TMainForm.snapTopSplitterToMenu;
 var
-  topsplt: TAnchorDockSplitter;
-  topsite: TControl;
+  topSplt: TAnchorDockSplitter;
+  topHost: TAnchorDockHostSite = nil;
+  topSite: TControl;
   edtSite: TControl;
 begin
   if not fDockingIsInitialized then
@@ -3696,22 +3691,23 @@ begin
   edtSite := DockMaster.GetSite(fEditWidg);
   if edtSite.isNil then
     exit;
-  if GetDockSplitterOrParent(edtSite, akTop, topsite) then
+  if GetDockSplitterOrParent(edtSite, akTop, topSite) then
   begin
-    if topsite is TAnchorDockHostSite and
-      TAnchorDockHostSite(topsite).BoundSplitter.isNotNil and
-      (TAnchorDockHostSite(topsite).BoundSplitter.Top > 0) then
+    if topSite is TAnchorDockHostSite then
+      topHost := TAnchorDockHostSite(topSite);
+    if topHost.isNotNil and topHost.BoundSplitter.isNotNil and
+      (topHost.BoundSplitter.Top > 0) then
     begin
-      TAnchorDockHostSite(topsite).BoundSplitter.OnCanOffset:=nil;
-      TAnchorDockHostSite(topsite).BoundSplitter.MoveSplitter(-3000);
-      TAnchorDockHostSite(topsite).BoundSplitter.OnCanOffset:= @LockTopWindow;
+      topHost.BoundSplitter.OnCanOffset:=nil;
+      topHost.BoundSplitter.MoveSplitter(-topHost.BoundSplitter.Top);
+      topHost.BoundSplitter.OnCanOffset:= @LockTopWindow;
     end;
-  end else if GetDockSplitter(DockMaster.GetSite(fEditWidg), akTop, topsplt) and
-    (topsplt.top > 0) then
+  end else if GetDockSplitter(DockMaster.GetSite(fEditWidg), akTop, topSplt) and
+    (topSplt.top > 0) then
   begin
-    topsplt.OnCanOffset := nil;
-    topsplt.MoveSplitter(-3000);
-    topsplt.OnCanOffset:= @LockTopWindow;
+    topSplt.OnCanOffset := nil;
+    topSplt.MoveSplitter(-topSplt.top);
+    topSplt.OnCanOffset:= @LockTopWindow;
   end;
 end;
 {$ENDREGION}
