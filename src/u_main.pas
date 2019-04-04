@@ -2765,7 +2765,6 @@ procedure TMainForm.actLayoutResetExecute(Sender: TObject);
 begin
   InitDocking(true);
 end;
-
 {$ENDREGION}
 
 {$REGION edit ------------------------------------------------------------------}
@@ -3301,7 +3300,7 @@ begin
   for i := fMultidoc.documentCount-1 downto 0 do
   begin
     d := fMultidoc.document[i];
-    if not d.Equals(c) then
+    if d = c then
       fMultidoc.closeDocument(d);
   end;
 end;
