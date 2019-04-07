@@ -94,6 +94,10 @@ var
 
   vte_get_user_shell: function(): PChar;
 
+  vte_terminal_get_row_count: function(terminal: PVteTerminal): glong; cdecl;
+
+  vte_terminal_get_column_count: function(terminal: PVteTerminal): glong; cdecl;
+
 function Gtk2TermLoad: Boolean;
 
 implementation
@@ -144,7 +148,10 @@ begin
     'vte_terminal_paste_clipboard');
   @vte_get_user_shell := GetProcAddress(Lib,
     'vte_get_user_shell');
-
+  @vte_terminal_get_row_count := GetProcAddress(Lib,
+    'vte_terminal_get_row_count');
+  @vte_terminal_get_column_count:= GetProcAddress(Lib,
+    'vte_terminal_get_column_count');
 
   // assume all or none
   Loaded := @vte_terminal_new <> nil;
