@@ -133,7 +133,7 @@ type
         const AParams: TCreateParams): TLCLIntfHandle; override;
   end;
 
-procedure TerminalExit(Widget: PGtkWidget); cdecl;
+procedure TerminalExit(Widget: PGtkWidget; status: gint; user: Pointer); cdecl;
 var
   Info: PWidgetInfo;
 begin
@@ -141,7 +141,7 @@ begin
   TTerminal(Info.LCLObject).DoTerminate;
 end;
 
-procedure TerminalRefresh(Widget: PGtkWidget); cdecl;
+procedure TerminalRefresh(Widget: PGtkWidget; user: Pointer); cdecl;
 var
   Info: PWidgetInfo;
 begin
