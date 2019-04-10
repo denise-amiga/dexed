@@ -251,11 +251,6 @@ type
   procedure killProcess(var process: TAsyncProcess);
 
   (**
-   * Ensures that the i/o process pipes are not redirected if it waits on exit.
-   *)
-  procedure ensureNoPipeIfWait(process: TProcess);
-
-  (**
    * Returns true if ExeName is already running.
    *)
   function AppIsRunning(const fname: string):Boolean;
@@ -1079,13 +1074,6 @@ begin
     process.Terminate(0);
   process.Free;
   process := nil;
-end;
-
-procedure ensureNoPipeIfWait(process: TProcess);
-begin
-  if not (poWaitonExit in process.Options) then
-    exit;
-  process.Options := process.Options - [poStderrToOutPut, poUsePipes];
 end;
 
 function getLineEndingLength(const fname: string): byte;

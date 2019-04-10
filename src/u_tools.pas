@@ -250,7 +250,6 @@ begin
         fProcess.Parameters.Text := arg;
     end;
   end;
-  ensureNoPipeIfWait(fProcess);
 
   if fProcess.Executable.fileExists then
   begin

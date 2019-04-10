@@ -811,7 +811,6 @@ begin
       prc.CurrentDirectory := fSymStringExpander.expand(prc.CurrentDirectory)
     else
       prc.CurrentDirectory:= chd;
-    ensureNoPipeIfWait(prc);
     prc.Execute;
     while prc.Running do
       if poUsePipes in prc.Options then
